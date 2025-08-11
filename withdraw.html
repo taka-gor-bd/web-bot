@@ -355,9 +355,6 @@
     </style>
 </head>
 <body>
-    <!-- Ad SDK Integration -->
-    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
-
     <div class="container">
         <div class="header">
             <a id="back-button" class="close-button hidden">&times;</a>
@@ -466,10 +463,12 @@
         let selectedCountry = '';
         const bdtExchangeRate = 110.00;
         const inrExchangeRate = 83.00;
-        
-        // Fixed minimum withdrawal amount as per request
-        const MIN_WITHDRAWAL_FIXED = 5; 
-        
+        const minWithdrawal = {
+            bangladesh: 10,
+            india: 15,
+            international: 50
+        };
+
         const countryData = [
             { id: 'bangladesh', name: 'Bangladesh', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/bd.svg', status: 'available' },
             { id: 'india', name: 'India', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/in.svg', status: 'available' },
@@ -549,7 +548,6 @@
                 currentUser = user;
                 loadBalance();
                 setupCountryButtons();
-                setupAdDisplayLogic(); // Set up ad display based on user's plan
             } else {
                 window.location.href = 'index.html';
             }
@@ -567,42 +565,6 @@
         function vibrate() {
             if ("vibrate" in navigator) {
                 navigator.vibrate(50);
-            }
-        }
-
-        async function setupAdDisplayLogic() {
-            if (!currentUser) return; // Ensure currentUser is available
-
-            const userRef = ref(db, 'users/' + currentUser.uid);
-            const userSnapshot = await get(userRef);
-            const userData = userSnapshot.val() || {};
-            const activePlans = userData.activePlans || {};
-
-            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
-            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
-
-            if (typeof show_9696042 === 'function') {
-                if (hasActivePaidPlan) {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-                    });
-                    console.log("Withdrawal page: Paid Premium User - No in-app ads.");
-                } else if (hasActiveFreePlan) {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
-                    });
-                    console.log("Withdrawal page: Free Premium User - In-app ads every 5 minutes.");
-                } else {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
-                    });
-                    console.log("Withdrawal page: Normal User - In-app ads every 2 minutes.");
-                }
-            } else {
-                console.warn("Ad SDK function show_9696042 not found on withdrawal page.");
             }
         }
 
@@ -688,9 +650,7 @@
 
                     accountLabel.textContent = accountLabels[selectedMethod];
                     accountIdInput.placeholder = `Enter your ${accountLabels[selectedMethod]}`;
-                    
-                    // Display the fixed minimum withdrawal amount
-                    minWithdrawalAmountSpan.textContent = MIN_WITHDRAWAL_FIXED.toFixed(2);
+                    minWithdrawalAmountSpan.textContent = minWithdrawal[selectedCountry];
                     
                     amountInput.value = '';
                     accountIdInput.value = '';
@@ -721,8 +681,7 @@
                 summaryLocal.textContent = `${currencySymbol}${convertedAmount.toFixed(2)}`;
             }
 
-            // Validate against the fixed minimum withdrawal amount
-            if (amount < MIN_WITHDRAWAL_FIXED) {
+            if (amount < minWithdrawal[selectedCountry]) {
                 minWithdrawalWarning.classList.remove('hidden');
             } else {
                 minWithdrawalWarning.classList.add('hidden');
@@ -750,9 +709,8 @@
             const amount = parseFloat(amountInput.value);
             const accountId = accountIdInput.value;
             
-            // Validate against the fixed minimum withdrawal amount
-            if (amount < MIN_WITHDRAWAL_FIXED) {
-                customAlert.show('Error', `Minimum withdrawal is $${MIN_WITHDRAWAL_FIXED.toFixed(2)}.`);
+            if (amount < minWithdrawal[selectedCountry]) {
+                customAlert.show('Error', `Minimum withdrawal is $${minWithdrawal[selectedCountry]}.`);
                 return;
             }
 
@@ -770,8 +728,10 @@
             customAlert.show('Processing...', 'Your request is being submitted. Please wait.');
 
             try {
-                const userWithdrawalRef = push(ref(db, `withdrawalRequests/${currentUser.uid}`)); // Use push for unique ID
-                await set(userWithdrawalRef, { // Use set instead of push to specify key directly if needed, but push is fine here
+                const userWithdrawalRef = ref(db, `withdrawalRequests/${currentUser.uid}`);
+                const userRef = ref(db, `users/${currentUser.uid}`);
+                
+                await push(userWithdrawalRef, {
                     userId: currentUser.uid,
                     country: selectedCountry,
                     method: selectedMethod,
@@ -782,7 +742,7 @@
                 });
 
                 const newBalance = userBalance - amount;
-                await update(ref(db, `users/${currentUser.uid}`), { balance: newBalance });
+                await update(userRef, { balance: newBalance });
 
                 userBalance = newBalance;
                 userBalanceElement.textContent = `$${userBalance.toFixed(2)}`;
@@ -802,4 +762,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
