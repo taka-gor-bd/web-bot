@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secret Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .card-container {
+            position: relative;
+            width: 300px;
+            height: 180px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .scratch-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .card-content {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .card-content.revealed {
+            opacity: 1;
+        }
+        
+        .card-content h3 {
+            font-size: 1.5em;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .card-content p {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .scratch-info {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: var(--light-text);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .back-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 14px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 30px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            display: none;
+        }
+
+        .back-button:hover {
+            background-color: #388e3c;
+            transform: translateY(-3px);
+        }
+
+        /* Poptop (Modal) styles */
+        .poptop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .poptop-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .poptop-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .poptop-overlay.active .poptop-content {
+            transform: scale(1);
+        }
+        .poptop-content h3 {
+            margin: 0 0 15px;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .poptop-content p {
+            margin: 0 0 25px;
+            color: var(--light-text);
+            font-size: 1.1em;
+        }
+        .poptop-content .ok-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secret Card</h1>
+        <p class="scratch-info">Scratch the card to reveal your prize!</p>
+        
+        <div class="card-container">
+            <div class="scratch-card">
+                <canvas id="scratch-canvas"></canvas>
+                <div class="card-content">
+                    <h3>You Won!</h3>
+                    <p id="prize-amount">$0.00</p>
+                </div>
+            </div>
+        </div>
+        <a href="home.html" class="back-button" id="back-button">Go to Home</a>
+    </div>
+
+    <div id="poptop-overlay" class="poptop-overlay">
+        <div class="poptop-content">
+            <h3 id="poptop-title">Congratulations!</h3>
+            <p id="poptop-text">You won <span id="poptop-amount">$0.00</span>!</p>
+            <button class="ok-button" onclick="closePoptop()">OK</button>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        const canvas = document.getElementById('scratch-canvas');
+        const cardContainer = document.querySelector('.card-container');
+        const cardContent = document.querySelector('.card-content');
+        const prizeAmountDisplay = document.getElementById('prize-amount');
+        const backButton = document.getElementById('back-button');
+        const poptopOverlay = document.getElementById('poptop-overlay');
+        const poptopAmount = document.getElementById('poptop-amount');
+
+        let currentUser = null;
+        let isScratching = false;
+        let isRevealed = false;
+        let prizeAmount = 0;
+        let lastScratchDate = null;
+        const dailyCardLimit = 1;
+
+        const prizes = [0.01, 0.02, 0.05, 0.10, 0.00, 0.00, 0.00];
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                checkUserCardStatus();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function checkUserCardStatus() {
+            if (!currentUser) return;
+            const userRef = ref(db, `users/${currentUser.uid}/secretCard`);
+            const snapshot = await get(userRef);
+
+            const today = new Date().toDateString();
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                lastScratchDate = data.lastScratchDate;
+
+                if (lastScratchDate === today) {
+                    // Card has already been scratched today
+                    prizeAmount = data.prizeAmount;
+                    prizeAmountDisplay.textContent = `$${prizeAmount.toFixed(2)}`;
+                    cardContent.classList.add('revealed');
+                    canvas.style.display = 'none';
+                    backButton.style.display = 'block';
+                    document.querySelector('.scratch-info').textContent = 'You have already scratched today\'s card.';
+                } else {
+                    // It's a new day, reset card
+                    setupNewCard();
+                }
+            } else {
+                // First time user, set up new card
+                setupNewCard();
+            }
+        }
+
+        function setupNewCard() {
+            prizeAmount = prizes[Math.floor(Math.random() * prizes.length)];
+            prizeAmountDisplay.textContent = `$${prizeAmount.toFixed(2)}`;
+            drawScratchLayer();
+            initScratchEvents();
+        }
+
+        function drawScratchLayer() {
+            const ctx = canvas.getContext('2d');
+            canvas.width = cardContainer.clientWidth;
+            canvas.height = cardContainer.clientHeight;
+            ctx.fillStyle = '#90a4ae'; // Scratchable color
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+                y: (e.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+            };
+        }
+
+        function getTouchPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.touches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+                y: (e.touches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+            };
+        }
+
+        function scratch(x, y) {
+            const ctx = canvas.getContext('2d');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function initScratchEvents() {
+            let lastPoint;
+            
+            canvas.addEventListener('mousedown', (e) => {
+                isScratching = true;
+                lastPoint = getMousePos(e);
+                scratch(lastPoint.x, lastPoint.y);
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isScratching) return;
+                const currentPoint = getMousePos(e);
+                const ctx = canvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.moveTo(lastPoint.x, lastPoint.y);
+                ctx.lineTo(currentPoint.x, currentPoint.y);
+                ctx.lineWidth = 40;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                lastPoint = currentPoint;
+                checkScratchProgress();
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isScratching = false;
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                isScratching = false;
+            });
+
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isScratching = true;
+                lastPoint = getTouchPos(e);
+                scratch(lastPoint.x, lastPoint.y);
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isScratching) return;
+                const currentPoint = getTouchPos(e);
+                const ctx = canvas.getContext('2d');
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.moveTo(lastPoint.x, lastPoint.y);
+                ctx.lineTo(currentPoint.x, currentPoint.y);
+                ctx.lineWidth = 40;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                lastPoint = currentPoint;
+                checkScratchProgress();
+            });
+            
+            canvas.addEventListener('touchend', () => {
+                isScratching = false;
+            });
+        }
+
+        function checkScratchProgress() {
+            if (isRevealed) return;
+            const ctx = canvas.getContext('2d');
+            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let transparentPixels = 0;
+            for (let i = 0; i < pixels.data.length; i += 4) {
+                if (pixels.data[i + 3] === 0) {
+                    transparentPixels++;
+                }
+            }
+            const scratchPercentage = (transparentPixels / (canvas.width * canvas.height)) * 100;
+            if (scratchPercentage > 50) { // When more than 50% is scratched
+                revealCard();
+            }
+        }
+        
+        async function revealCard() {
+            if (isRevealed) return;
+            isRevealed = true;
+            canvas.style.display = 'none';
+            cardContent.classList.add('revealed');
+            backButton.style.display = 'block';
+
+            await saveCardData();
+            showPoptop();
+
+            if ("vibrate" in navigator) {
+                if (prizeAmount > 0) {
+                    navigator.vibrate([200, 100, 200]); // Vibrate on win
+                } else {
+                    navigator.vibrate(200); // Simple vibrate for no prize
+                }
+            }
+        }
+        
+        async function saveCardData() {
+            if (!currentUser) return;
+            const userRef = ref(db, `users/${currentUser.uid}/secretCard`);
+            await set(userRef, {
+                lastScratchDate: new Date().toDateString(),
+                prizeAmount: prizeAmount
+            });
+
+            if (prizeAmount > 0) {
+                const balanceRef = ref(db, `users/${currentUser.uid}/balance`);
+                const balanceSnapshot = await get(balanceRef);
+                const currentBalance = balanceSnapshot.exists() ? balanceSnapshot.val() : 0;
+                const newBalance = parseFloat(currentBalance) + parseFloat(prizeAmount);
+                await set(balanceRef, newBalance);
+            }
+        }
+
+        function showPoptop() {
+            poptopAmount.textContent = `$${prizeAmount.toFixed(2)}`;
+            poptopOverlay.classList.add('active');
+        }
+
+        window.closePoptop = function() {
+            poptopOverlay.classList.remove('active');
+        }
+    </script>
+</body>
+  </html>
