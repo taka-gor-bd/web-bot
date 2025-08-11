@@ -416,9 +416,6 @@
     </style>
 </head>
 <body>
-    <!-- Ad SDK Integration -->
-    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
-
     <div class="container">
         <div class="header">
             <a id="back-button" class="close-button hidden">&times;</a>
@@ -523,7 +520,6 @@
         let userBalance = 0;
         let selectedMethod = '';
         let selectedCountry = '';
-        let userData = null; // To store user data for ad logic
 
         const bdtExchangeRate = 110.00; 
         const inrExchangeRate = 83.00;
@@ -655,14 +651,11 @@
             }
         };
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
-                userData = userSnapshot.val(); // Store user data
                 loadBalance();
                 setupCountryButtons();
-                setupAdDisplayLogic(); // Set up ad display based on user's plan
             } else {
                 window.location.href = 'index.html';
             }
@@ -683,38 +676,6 @@
             }
         }
 
-        async function setupAdDisplayLogic() {
-            if (!currentUser || !userData) return;
-
-            const activePlans = userData.activePlans || {};
-            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
-            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
-
-            if (typeof show_9696042 === 'function') {
-                if (hasActivePaidPlan) {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-                    });
-                    console.log("Deposit page: Paid Premium User - No in-app ads.");
-                } else if (hasActiveFreePlan) {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
-                    });
-                    console.log("Deposit page: Free Premium User - In-app ads every 5 minutes.");
-                } else {
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
-                    });
-                    console.log("Deposit page: Normal User - In-app ads every 2 minutes.");
-                }
-            } else {
-                console.warn("Ad SDK function show_9696042 not found on deposit page.");
-            }
-        }
-
         function setupCountryButtons() {
             try {
                 if (!countryButtonsContainer || !countryData) {
@@ -727,7 +688,6 @@
                     button.href = '#';
                     button.classList.add('country-button');
                     button.dataset.countryId = country.id;
-                    button.dataset.status = country.status; // Keep status for coming soon countries
                     button.innerHTML = `
                         <img src="${country.flag}" alt="${country.name} Flag">
                         <span>${country.name}</span>
@@ -739,14 +699,8 @@
                         e.preventDefault();
                         vibrate();
                         const countryId = button.dataset.countryId;
-                        const status = button.dataset.status;
                         selectedCountry = countryId;
-
-                        if (status === 'coming-soon') {
-                            customAlert.show('Not Available', 'Deposit for this region is coming soon!');
-                        } else {
-                            showPaymentMethods(countryId);
-                        }
+                        showPaymentMethods(countryId);
                     });
                 });
             } catch (error) {
@@ -812,8 +766,7 @@
             `;
             
             const methodFee = paymentMethods[selectedCountry]?.find(m => m.id === selectedMethod)?.fee || 0;
-            // Fee is just informational for now, not integrated into amount calculations.
-            // const feeText = methodFee > 0 ? ` (+ $${methodFee.toFixed(2)} Fee)` : '';
+            const feeText = methodFee > 0 ? ` (+ $${methodFee.toFixed(2)} Fee)` : '';
 
             document.getElementById('transaction-label').textContent = "Transaction ID / Hash";
             transactionIdInput.placeholder = "Your transaction reference";
@@ -885,8 +838,8 @@
             customAlert.showProcessing('Submitting your request...');
             
             try {
-                const depositRef = push(ref(db, `depositRequests/${currentUser.uid}`)); // Use push for unique ID
-                await set(depositRef, { // Use set to write to the generated key
+                const depositRef = ref(db, `depositRequests/${currentUser.uid}`);
+                await push(depositRef, {
                     userId: currentUser.uid,
                     country: selectedCountry,
                     method: selectedMethod,
@@ -911,4 +864,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
