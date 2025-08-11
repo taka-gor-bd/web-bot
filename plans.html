@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plans</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .plans-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .plans-container {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .plan-card {
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .plan-card:hover:not(.active-plan):not(.disabled) {
+            transform: translateY(-5px);
+        }
+
+        .plan-card.active-plan {
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.2);
+            padding: 15px;
+        }
+
+        .plan-card.active-plan .plan-details {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 15px;
+            text-align: left;
+        }
+        
+        .plan-card.active-plan .plan-content {
+            flex-grow: 1;
+        }
+        
+        .plan-card.active-plan h3,
+        .plan-card.active-plan .plan-timer,
+        .plan-card.active-plan .plan-price {
+            text-align: left;
+            margin: 0;
+        }
+
+        .plan-card.active-plan .plan-price {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .plan-card.active-plan .plan-features,
+        .plan-card.active-plan .plan-icon,
+        .plan-card.active-plan .buy-button {
+            display: none;
+        }
+
+        .plan-card.active-plan .task-info {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .plan-card.active-plan .do-tasks-button {
+            display: block;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .plan-card.active-plan .plan-icon.active {
+            display: block;
+            font-size: 2.5em;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .plan-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none; /* Disable all interactions when disabled */
+        }
+        
+        .plan-card.active-plan::before {
+            content: 'Active Plan';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .plan-icon {
+            font-size: 3em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .plan-icon.active {
+            display: none;
+        }
+
+        .plan-card h3 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .plan-price {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--secondary-color);
+            margin: 5px 0 10px;
+        }
+        .plan-price small {
+            font-size: 0.6em;
+            color: var(--light-text);
+            font-weight: 500;
+        }
+
+        .plan-timer {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        .plan-features li i {
+            color: var(--secondary-color);
+        }
+
+        .buy-button {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .buy-button:hover:not(.disabled) {
+            background-color: #e64a19;
+        }
+
+        .buy-button.disabled {
+            background-color: var(--light-text);
+            cursor: not-allowed;
+            pointer-events: none; /* Disable click when disabled */
+        }
+        
+        .do-tasks-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: none;
+        }
+        .do-tasks-button:hover {
+            background-color: #388e3c;
+        }
+
+        .task-info {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            text-align: left;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modal-fade-in 0.3s forwards ease-out;
+        }
+        
+        @keyframes modal-fade-in {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content h3 {
+            margin: 0 0 10px;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-align: center;
+        }
+        .modal-content p {
+            text-align: center;
+            color: var(--light-text);
+            margin-bottom: 20px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .confirm-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+        .cancel-button {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .close-button:hover {
+            color: var(--text-color);
+        }
+        
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div class="plans-section">
+            <h2>Our Plans</h2>
+            <div id="plans-container" class="plans-container">
+                <p style="text-align: center; color: var(--light-text);">Loading plans...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="plan-modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div id="plan-modal-content" class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-button" onclick="closeModal(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 id="modal-title"></h3>
+            <p id="modal-description"></p>
+            <div id="modal-buttons" class="modal-buttons">
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item active">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, update, push, set } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        let currentUser = null;
+        let userData = null; // Store user data for ad logic and free plan status
+        let selectedPlan = null;
+        let timerIntervals = {};
+
+        const plans = [
+            { id: 'free-plan', name: 'Free Plan', price: 0, dailyIncome: 0.20, durationDays: 5, totalTasks: 5, 
+              features: ['Daily Tasks', 'Basic Support', 'Limited Ad Exposure'] },
+            { id: 'plan-1', name: 'Basic Plan', price: 10, dailyIncome: 0.50, durationDays: 30, totalTasks: 10, 
+              features: ['Unlimited Tasks', 'Priority Support', 'Ad-Free Experience'] },
+            { id: 'plan-2', name: 'Standard Plan', price: 20, dailyIncome: 1.00, durationDays: 30, totalTasks: 10, 
+              features: ['Unlimited Tasks', 'Priority Support', 'Ad-Free Experience'] },
+            { id: 'plan-3', name: 'Premium Plan', price: 50, dailyIncome: 3.00, durationDays: 90, totalTasks: 15, 
+              features: ['Unlimited Tasks', '24/7 Live Support', 'Ad-Free Experience', 'Exclusive Bonuses'] },
+            { id: 'plan-4', name: 'Pro Plan', price: 100, dailyIncome: 7.00, durationDays: 90, totalTasks: 15, 
+              features: ['Unlimited Tasks', 'Dedicated Account Manager', 'Ad-Free Experience', 'Higher Daily Limits'] },
+            { id: 'plan-5', name: 'Ultimate Plan', price: 200, dailyIncome: 15.00, durationDays: 180, totalTasks: 20, 
+              features: ['Unlimited Tasks', 'VIP Support', 'Ad-Free Experience', 'Maximum Earnings'] }
+        ];
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Modified closeModal to simply hide the overlay
+        window.closeModal = function(event) {
+            // Check if click is on overlay itself or a button within the modal
+            if (event && event.target && (event.target.id === 'plan-modal-overlay' || event.target.closest('.close-button') || event.target.closest('.cancel-button') || event.target.closest('.confirm-button'))) {
+                document.getElementById('plan-modal-overlay').classList.add('hidden');
+            } else if (!event) { // For calls without an event (e.g., from JS logic)
+                document.getElementById('plan-modal-overlay').classList.add('hidden');
+            }
+        }
+        
+        window.buyPlan = async function(planId) {
+            vibrate();
+            selectedPlan = plans.find(plan => plan.id === planId);
+            if (!selectedPlan || !currentUser) return;
+            
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRef);
+            userData = userSnapshot.val() || {}; // Update global userData
+            const currentBalance = userData.balance || 0;
+            const activePlans = userData.activePlans || {};
+            const freePlanClaimedStatus = userData.freePlanClaimed || false; // New flag for free plan
+
+            // Check if there's any active plan, regardless of its type
+            const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+
+            if (hasActivePlan) {
+                showModal("Plan Already Active", "You already have an active plan. Please let it expire or contact support if you wish to upgrade.", `<button class="confirm-button" onclick="closeModal()">OK</button>`);
+                return;
+            }
+
+            // Prevent Free Plan from being claimed more than once
+            if (selectedPlan.id === 'free-plan' && freePlanClaimedStatus) {
+                showModal("Free Plan Claimed", "You have already claimed your free plan. Free plan can only be claimed once.", `<button class="confirm-button" onclick="closeModal()">OK</button>`);
+                return;
+            }
+
+            if (selectedPlan.price > 0 && currentBalance < selectedPlan.price) {
+                showModal("Insufficient Balance", "Insufficient balance. Please deposit funds to purchase this plan.", `<button class="confirm-button" onclick="window.location.href = 'diposit.html';">Go to Deposit</button><button class="cancel-button" onclick="closeModal()">Cancel</button>`);
+                return;
+            }
+
+            const buttons = `
+                <button class="cancel-button" onclick="closeModal()">Cancel</button>
+                <button class="confirm-button" onclick="confirmPurchase()">Buy Now</button>
+            `;
+            showModal("Confirm Purchase", `Do you want to buy the "${selectedPlan.name}" plan for $${selectedPlan.price}?`, buttons);
+        }
+
+        window.confirmPurchase = async function() {
+            vibrate();
+            if (!selectedPlan || !currentUser) return;
+            
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRef);
+            userData = userSnapshot.val() || {}; // Re-fetch for freshest data
+            const currentBalance = userData.balance || 0;
+            
+            const newBalance = currentBalance - selectedPlan.price;
+            const planPurchaseId = Date.now();
+            const planDetails = {
+                ...selectedPlan,
+                purchaseDate: planPurchaseId,
+                expirationDate: planPurchaseId + (selectedPlan.durationDays * 24 * 60 * 60 * 1000),
+                completedTasks: 0, 
+                status: 'active'
+            };
+            
+            // Prepare update object
+            const updates = { 
+                balance: newBalance,
+                premiumStatus: true, // Mark user as premium regardless of plan type
+                [`activePlans/${planPurchaseId}`]: planDetails 
+            };
+
+            // If free plan is purchased, set the freePlanClaimed flag
+            if (selectedPlan.id === 'free-plan') {
+                updates.freePlanClaimed = true;
+            }
+
+            await update(userRef, updates);
+            
+            const historyRef = push(ref(db, `users/${currentUser.uid}/history/planPurchases`));
+            await set(historyRef, {
+                planName: selectedPlan.name,
+                amount: selectedPlan.price,
+                timestamp: Date.now()
+            });
+
+            closeModal(); // Close modal first
+            const buttons = `<button class="confirm-button" onclick="window.location.href = 'tasks.html';">Go to Tasks</button>`;
+            showModal("Success!", `Successfully purchased ${selectedPlan.name} plan!`, buttons);
+            
+            loadPlans(); // Reload plans to update UI
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+                userData = userSnapshot.val(); // Store user data
+                await loadPlans(); // Load plans first
+                await setupAdDisplayLogic(); // Then check for ad display
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Function to check user's plan and display ad if applicable
+        async function setupAdDisplayLogic() {
+            if (!currentUser || !userData) return;
+
+            const activePlans = userData.activePlans || {};
+            // Check if any active plan has a price > 0 (Paid Premium)
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            // Check if Free Plan is active
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Plans page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Plans page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    // Normal user without any active plan (including expired free plan)
+                    show_9696042('pop').then(() => { // Show pop ad on page entry
+                        console.log("Ad displayed on Plans page entry for Normal User.");
+                    }).catch(e => {
+                        console.error("Error displaying pop ad on Plans page:", e);
+                    });
+                    // Also set in-app for subsequent views
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Plans page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on plans page.");
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', vibrate);
+            });
+        });
+
+        function updateTimer(expirationDate, timerElement, planPurchaseId) {
+            const now = Date.now();
+            const remainingTimeMs = expirationDate - now;
+
+            if (remainingTimeMs > 0) {
+                const totalSeconds = Math.floor(remainingTimeMs / 1000);
+                const days = Math.floor(totalSeconds / (24 * 60 * 60));
+                const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
+                const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+                const seconds = totalSeconds % 60;
+
+                let timerText = "Expires in: ";
+                if (days > 0) timerText += `${days}d `;
+                timerText += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timerElement.textContent = timerText;
+            } else {
+                timerElement.textContent = `Expired.`;
+                timerElement.style.color = 'var(--danger-color)';
+                clearInterval(timerIntervals[planPurchaseId]);
+                expirePlanInDatabase(planPurchaseId);
+            }
+        }
+        
+        async function expirePlanInDatabase(planPurchaseId) {
+            if (!currentUser) return;
+            const userRef = ref(db, `users/${currentUser.uid}/activePlans/${planPurchaseId}`);
+            await update(userRef, { status: "expired" });
+            
+            // Also update premiumStatus to false if this was the last active paid plan
+            const userRootRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRootRef);
+            userData = userSnapshot.val() || {}; // Update global userData
+            const activePlans = userData.activePlans || {};
+            const stillHasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+
+            if (!stillHasActivePlan) {
+                await update(userRootRef, { premiumStatus: false });
+            }
+
+            loadPlans(); // Reload plans to update UI
+        }
+
+        async function loadPlans() {
+            const plansContainer = document.getElementById('plans-container');
+            plansContainer.innerHTML = '';
+            
+            for (const key in timerIntervals) {
+                clearInterval(timerIntervals[key]);
+            }
+            timerIntervals = {};
+
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRef);
+            userData = userSnapshot.val() || {}; // Ensure userData is freshest
+            const activePlans = userData.activePlans || {}; // Object of active plans
+            const freePlanClaimedStatus = userData.freePlanClaimed || false; // Get free plan claimed status
+
+            const purchasedPlanInstances = Object.values(activePlans).filter(p => p.status === 'active');
+            const hasAnyActivePlan = purchasedPlanInstances.length > 0;
+
+            const plansToDisplay = [...plans]; // Create a mutable copy
+
+            // Sort active plans to the top
+            const sortedPlans = plansToDisplay.sort((a, b) => {
+                const aIsActive = purchasedPlanInstances.some(instance => instance.id === a.id);
+                const bIsActive = purchasedPlanInstances.some(instance => instance.id === b.id);
+
+                if (aIsActive && !bIsActive) return -1;
+                if (!aIsActive && bIsActive) return 1;
+                return a.price - b.price; // Sort by price if not active/inactive
+            });
+
+            sortedPlans.forEach(plan => {
+                const planCard = document.createElement('div');
+                planCard.classList.add('plan-card');
+                
+                const purchasedPlan = purchasedPlanInstances.find(instance => instance.id === plan.id);
+                const isActive = purchasedPlan && purchasedPlan.status === 'active';
+                const isOtherPlanActive = hasAnyActivePlan && !isActive; // True if THIS plan is NOT active, but SOME OTHER plan IS active
+
+                if (isActive) {
+                    planCard.classList.add('active-plan');
+                    
+                    planCard.innerHTML = `
+                        <div class="plan-details">
+                            <i class="fas fa-star plan-icon active"></i>
+                            <div class="plan-content">
+                                <h3>${plan.name}</h3>
+                                <p class="plan-timer" data-plan-purchase-id="${purchasedPlan.purchaseDate}"></p>
+                                <p class="task-info">Completed Tasks: <strong>${purchasedPlan.completedTasks || 0}/${plan.totalTasks}</strong></p>
+                                <button class="do-tasks-button" onclick="window.location.href = 'tasks.html';">Go to Tasks</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // Start timer for the active plan
+                    const timerElement = planCard.querySelector('.plan-timer');
+                    if (timerElement) {
+                        timerIntervals[purchasedPlan.purchaseDate] = setInterval(() => {
+                            updateTimer(purchasedPlan.expirationDate, timerElement, purchasedPlan.purchaseDate);
+                        }, 1000);
+                        updateTimer(purchasedPlan.expirationDate, timerElement, purchasedPlan.purchaseDate);
+                    }
+
+                } else { // Not active plan
+                    planCard.innerHTML = `
+                        <i class="fas fa-star plan-icon"></i>
+                        <h3>${plan.name}</h3>
+                        <div class="plan-price">${plan.price === 0 ? 'Free' : `$${plan.price}`} <small>/ ${plan.durationDays} days</small></div>
+                        <ul class="plan-features">
+                            <li><i class="fas fa-money-bill-wave"></i>Daily Income: $${plan.dailyIncome.toFixed(2)}</li>
+                            <li><i class="fas fa-tasks"></i>Total Tasks: ${plan.totalTasks}</li>
+                            ${plan.features.map(feature => `<li><i class="fas fa-check"></i>${feature}</li>`).join('')}
+                        </ul>
+                        <button class="buy-button" onclick="buyPlan('${plan.id}')">Buy Now</button>
+                    `;
+                    
+                    const buyButton = planCard.querySelector('.buy-button');
+                    // Disable other plans if another is active OR free plan is already claimed
+                    if (isOtherPlanActive || (plan.id === 'free-plan' && freePlanClaimedStatus)) {
+                        buyButton.classList.add('disabled');
+                    }
+                }
+
+                plansContainer.appendChild(planCard);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            width: 90%;
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container h2 {
+            margin: 0 0 10px;
+            font-size: 2em;
+            color: var(--primary-color);
+        }
+
+        .container p {
+            margin: 0 0 25px;
+            font-size: 1em;
+            color: var(--light-text);
+        }
+
+        .form-container {
+            display: none;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        .form-container.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background-color: var(--primary-color);
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .btn-submit:hover {
+            background-color: #e64a19;
+        }
+
+        .auth-switch {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .auth-switch a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .back-to-login {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .back-to-login a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modal/Popup styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        
+        .modal.success .modal-icon { color: var(--success-color); }
+        .modal.error .modal-icon { color: var(--error-color); }
+
+        .modal-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .modal-icon.spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        .modal h3 { margin-top: 0; }
+        .modal p { margin: 15px 0; }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: var(--primary-color);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div id="login-container" class="form-container active">
+            <h2>Login</h2>
+            <p>Login to your account</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <div class="forgot-password">
+                    <a id="show-forgot-password-link">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+            <div class="auth-switch">
+                Don't have an account? <a id="show-signup-link">Sign Up</a>
+            </div>
+        </div>
+
+        <div id="signup-container" class="form-container">
+            <h2>Sign Up</h2>
+            <p>Create your new account</p>
+            <form id="signup-form">
+                <input type="hidden" id="referral-id"> <!-- নতুন: রেফারেল আইডি রাখার জন্য -->
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signup-username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signup-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-submit">Sign Up</button>
+            </form>
+            <div class="auth-switch">
+                Already have an account? <a id="show-login-link">Login</a>
+            </div>
+        </div>
+        
+        <div id="forgot-password-container" class="form-container">
+            <h2>Forgot Password</h2>
+            <p>Enter your email to reset your password</p>
+            <form id="forgot-password-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="forgot-password-email" placeholder="Email" required>
+                </div>
+                <button type="submit" class="btn-submit">Send Reset Link</button>
+            </form>
+            <div class="back-to-login">
+                <a id="back-to-login-link">Back to Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal/Popup -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal">
+            <i id="modal-icon" class="modal-icon"></i>
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button id="modal-ok-button" class="modal-button" style="display: none;">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, set, get, update, increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Modal elements
+        const modalOverlay = document.getElementById('custom-modal');
+        const modal = modalOverlay.querySelector('.modal');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalOkButton = document.getElementById('modal-ok-button');
+
+        const showModal = (title, message, type = 'info', onOkCallback) => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            
+            modal.className = 'modal'; // Reset class
+            modal.classList.add(type);
+            modalIcon.className = 'modal-icon';
+
+            if (type === 'success') {
+                modalIcon.classList.add('fas', 'fa-check-circle');
+            } else if (type === 'error') {
+                modalIcon.classList.add('fas', 'fa-times-circle');
+            } else if (type === 'loading') {
+                modalIcon.classList.add('fas', 'fa-spinner', 'spinner');
+                modalOkButton.style.display = 'none';
+            } else {
+                modalIcon.classList.add('fas', 'fa-info-circle');
+            }
+            
+            modalOverlay.classList.add('show');
+            
+            if (type !== 'loading') {
+                modalOkButton.style.display = 'block';
+                modalOkButton.onclick = () => {
+                    hideModal();
+                    if (onOkCallback) onOkCallback();
+                };
+            }
+        };
+        
+        const hideModal = () => {
+            modalOverlay.classList.remove('show');
+        };
+        
+        // Check auth state on page load. If logged in, redirect.
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'home.html';
+            } else {
+                // If no user is logged in, show ads as a normal user
+                if (typeof show_9696042 === 'function') {
+                    console.log("Auth page: No user logged in. Showing in-app ads as a normal user.");
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: {
+                            frequency: 2, // Show 2 ads
+                            capping: 0.1, // within 6 minutes
+                            interval: 120, // 2 minutes interval
+                            timeout: 5,
+                            everyPage: false
+                        }
+                    });
+                } else {
+                    console.warn("Ad SDK function show_9696042 not found on auth page.");
+                }
+            }
+        });
+
+        // Form switching logic
+        const loginContainer = document.getElementById('login-container');
+        const signupContainer = document.getElementById('signup-container');
+        const forgotPasswordContainer = document.getElementById('forgot-password-container');
+
+        const showLoginForm = () => {
+            loginContainer.classList.add('active');
+            signupContainer.classList.remove('active');
+            forgotPasswordContainer.classList.remove('active');
+        }
+
+        const showSignupForm = () => {
+            loginContainer.classList.remove('active');
+            signupContainer.classList.add('active');
+            forgotPasswordContainer.classList.remove('active');
+        }
+
+        const showForgotPasswordForm = () => {
+            loginContainer.classList.remove('active');
+            signupContainer.classList.remove('active');
+            forgotPasswordContainer.classList.add('active');
+        }
+
+        document.getElementById('show-signup-link').addEventListener('click', showSignupForm);
+        document.getElementById('show-login-link').addEventListener('click', showLoginForm);
+        document.getElementById('show-forgot-password-link').addEventListener('click', showForgotPasswordForm);
+        document.getElementById('back-to-login-link').addEventListener('click', showLoginForm);
+
+        // নতুন: URL থেকে রেফারেল কোড নিয়ে ফর্মে সেট করা
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refId = urlParams.get('ref');
+            if (refId) {
+                document.getElementById('referral-id').value = refId;
+                showSignupForm(); // সরাসরি সাইন-আপ ফর্ম দেখানো
+            }
+        };
+
+        // Login functionality
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            showModal('Logging In', 'Please wait...', 'loading');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // The onAuthStateChanged listener will handle redirection
+            } catch (error) {
+                console.error("Error during login:", error);
+                hideModal();
+                showModal('Login Failed', error.message, 'error');
+            }
+        });
+
+        // Sign Up functionality (পরিবর্তিত)
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const referralId = document.getElementById('referral-id').value; // নতুন: রেফারেল আইডি নেওয়া
+
+            showModal('Creating Account', 'Please wait...', 'loading');
+
+            try {
+                // 1. Create user account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Update user profile
+                await updateProfile(user, { displayName: username });
+                
+                // 3. Send email verification
+                await sendEmailVerification(user);
+
+                // 4. Create user data object in the database
+                const userData = {
+                    username: username,
+                    email: email,
+                    balance: 0,
+                    referralCount: 0,
+                    referralEarnings: 0,
+                    premiumStatus: false,
+                    avatar: `https://api.dicebear.com/8.x/initials/svg?seed=${username}`
+                };
+
+                // 5. If there's a referral, add it to user data and update referrer's count
+                if (referralId) {
+                    userData.referredBy = referralId;
+                    const referrerRef = ref(db, `users/${referralId}`);
+                    // Check if referrer exists before updating
+                    const referrerSnap = await get(referrerRef);
+                    if(referrerSnap.exists()) {
+                       await update(referrerRef, {
+                           referralCount: increment(1)
+                       });
+                    }
+                }
+
+                // 6. Set user data in the database
+                await set(ref(db, 'users/' + user.uid), userData);
+
+                // 7. Success and redirect (গুরুত্বপূর্ণ পরিবর্তন)
+                // Now, onAuthStateChanged will redirect automatically
+                // No need for manual redirect here.
+                
+            } catch (error) {
+                console.error("Error during sign up:", error);
+                hideModal();
+                showModal('Sign Up Failed', error.message, 'error');
+            }
+        });
+        
+        // Forgot Password functionality
+        document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-password-email').value;
+            
+            showModal('Sending Email', 'Please wait...', 'loading');
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                hideModal();
+                showModal('Email Sent', 'A password reset link has been sent to your email. Please check your inbox!', 'success', () => {
+                    showLoginForm();
+                });
+            } catch (error) {
+                console.error("Error sending password reset email:", error);
+                hideModal();
+                showModal('Error', 'Failed to send password reset email: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

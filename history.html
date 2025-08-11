@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .history-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .history-container {
+            display: grid;
+            gap: 10px;
+        }
+
+        .history-card {
+            background-color: var(--card-background);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .history-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .history-icon {
+            font-size: 1.2em;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .income .history-icon {
+            background-color: var(--secondary-color);
+        }
+        .withdrawal .history-icon {
+            background-color: var(--danger-color);
+        }
+        .deposit .history-icon {
+             background-color: #2196f3;
+        }
+        .planPurchase .history-icon {
+             background-color: var(--primary-color);
+        }
+        .premiumRequest .history-icon {
+             background-color: #9c27b0; /* New color for premium requests */
+        }
+        
+        .history-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .history-details h3 {
+            margin: 0;
+            font-size: 1em;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .history-details p {
+            margin: 2px 0 0;
+            font-size: 0.8em;
+            color: var(--light-text);
+        }
+
+        .history-amount {
+            font-size: 1.1em;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .history-amount.plus {
+            color: var(--secondary-color);
+        }
+        .history-amount.minus {
+            color: var(--danger-color);
+        }
+        .history-amount.plan {
+             color: var(--primary-color);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modal-fade-in 0.3s forwards ease-out;
+        }
+        
+        @keyframes modal-fade-in {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content h3 {
+            margin: 0 0 10px;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-align: center;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        .modal-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1em;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .modal-detail-item:last-child {
+            border-bottom: none;
+        }
+        .modal-detail-item span:first-child {
+            color: var(--light-text);
+        }
+        
+        .modal-amount {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .close-button:hover {
+            color: var(--text-color);
+        }
+        
+        /* Loading and Empty States */
+        #history-loading, #no-history-message {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 1em;
+            color: var(--light-text);
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="history-section">
+            <h2>Transaction History</h2>
+            <div id="history-container" class="history-container">
+                <p id="history-loading">Loading history...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div id="history-modal-content" class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-button" onclick="closeModal(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 id="modal-title"></h3>
+            <div class="modal-details">
+                <div class="modal-detail-item">
+                    <span>Amount</span>
+                    <span id="modal-amount"></span>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Transaction Type</span>
+                    <span id="modal-type"></span>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Date</span>
+                    <span id="modal-date"></span>
+                </div>
+                <div class="modal-detail-item">
+                    <span>Time</span>
+                    <span id="modal-time"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item active">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let allTransactions = [];
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+        
+        function truncateText(text, wordLimit) {
+            const words = (text || '').split(' ');
+            if (words.length > wordLimit) {
+                return words.slice(0, wordLimit).join(' ') + '...';
+            }
+            return text;
+        }
+
+        window.openModal = function(transactionId) {
+            const transaction = allTransactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+            
+            const date = new Date(transaction.timestamp);
+            const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            const modalTitle = document.getElementById('modal-title');
+            const modalAmount = document.getElementById('modal-amount');
+            const modalType = document.getElementById('modal-type');
+            const modalDate = document.getElementById('modal-date');
+            const modalTime = document.getElementById('modal-time');
+            const modalDetailsContainer = document.querySelector('.modal-details');
+
+            // Remove previous dynamic details
+            const dynamicDetails = modalDetailsContainer.querySelectorAll('.dynamic-detail-item');
+            dynamicDetails.forEach(item => item.remove());
+
+            let amountSign;
+            let amountClass;
+            let transactionName;
+            
+            if (transaction.type === 'income' || transaction.type === 'deposit') {
+                amountSign = '+';
+                amountClass = 'plus';
+                if (transaction.type === 'deposit') {
+                    transactionName = `Deposit via ${transaction.method || 'Unknown'}`;
+                } else if (transaction.type === 'income' && transaction.taskName) {
+                    transactionName = transaction.taskName;
+                } else {
+                    transactionName = transaction.name || 'Income';
+                }
+            } else if (transaction.type === 'planPurchase' || transaction.type === 'withdrawal' || transaction.type === 'premiumRequest') {
+                amountSign = '-';
+                amountClass = 'minus';
+                if (transaction.type === 'withdrawal') {
+                    transactionName = `Withdrawal via ${transaction.method || 'Unknown'}`;
+                } else if (transaction.type === 'planPurchase') {
+                    amountClass = 'plan';
+                    transactionName = `Plan Purchase: ${transaction.planName}`;
+                } else if (transaction.type === 'premiumRequest') {
+                    transactionName = `Premium Request: ${transaction.plan || 'N/A'}`;
+                }
+            } else {
+                amountSign = '';
+                amountClass = '';
+                transactionName = transaction.name || 'Transaction';
+            }
+
+            modalTitle.textContent = transactionName;
+            modalAmount.textContent = `${amountSign}${(transaction.amount || 0).toFixed(2)}`;
+            modalAmount.className = `modal-amount ${amountClass}`;
+            modalType.textContent = (transaction.type || 'Unknown').charAt(0).toUpperCase() + (transaction.type || 'Unknown').slice(1);
+            modalDate.textContent = formattedDate;
+            modalTime.textContent = formattedTime;
+
+            if (transaction.status) {
+                const statusItem = document.createElement('div');
+                statusItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                statusItem.innerHTML = `<span>Status</span><span>${(transaction.status || 'Pending').charAt(0).toUpperCase() + (transaction.status || 'Pending').slice(1)}</span>`;
+                modalDetailsContainer.appendChild(statusItem);
+            }
+            if (transaction.accountId) {
+                const accountItem = document.createElement('div');
+                accountItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                accountItem.innerHTML = `<span>Account ID</span><span>${transaction.accountId}</span>`;
+                modalDetailsContainer.appendChild(accountItem);
+            }
+            if (transaction.transactionId) {
+                const transactionIdItem = document.createElement('div');
+                transactionIdItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                transactionIdItem.innerHTML = `<span>Transaction ID</span><span>${transaction.transactionId}</span>`;
+                modalDetailsContainer.appendChild(transactionIdItem);
+            }
+            if (transaction.country) {
+                const countryItem = document.createElement('div');
+                countryItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                countryItem.innerHTML = `<span>Country</span><span>${transaction.country}</span>`;
+                modalDetailsContainer.appendChild(countryItem);
+            }
+            if (transaction.planName) {
+                const planItem = document.createElement('div');
+                planItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                planItem.innerHTML = `<span>Plan</span><span>${transaction.planName}</span>`;
+                modalDetailsContainer.appendChild(planItem);
+            }
+            if (transaction.method) {
+                const methodItem = document.createElement('div');
+                methodItem.classList.add('modal-detail-item', 'dynamic-detail-item');
+                methodItem.innerHTML = `<span>Payment Method</span><span>${transaction.method}</span>`;
+                modalDetailsContainer.appendChild(methodItem);
+            }
+
+            document.getElementById('history-modal-overlay').classList.remove('hidden');
+            vibrate();
+        }
+        
+        window.closeModal = function(event) {
+            if (event.target.id === 'history-modal-overlay' || event.target.closest('.close-button')) {
+                document.getElementById('history-modal-overlay').classList.add('hidden');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadHistory();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', vibrate);
+            });
+        });
+
+        async function loadHistory() {
+            const historyContainer = document.getElementById('history-container');
+            historyContainer.innerHTML = '<p id="history-loading">Loading history...</p>';
+            allTransactions = [];
+
+            try {
+                const historyPaths = [
+                    { path: `users/${currentUser.uid}/incomeHistory`, type: 'income' },
+                    { path: `users/${currentUser.uid}/history/planPurchases`, type: 'planPurchase' },
+                    { path: `users/${currentUser.uid}/depositHistory`, type: 'deposit' },
+                    { path: `depositRequests/${currentUser.uid}`, type: 'deposit' },
+                    { path: `users/${currentUser.uid}/withdrawalHistory`, type: 'withdrawal' },
+                    { path: `withdrawalRequests/${currentUser.uid}`, type: 'withdrawal' },
+                    { path: `premiumRequests/${currentUser.uid}`, type: 'premiumRequest' }
+                ];
+
+                const fetchPromises = historyPaths.map(item => get(ref(db, item.path)));
+                const snapshots = await Promise.allSettled(fetchPromises);
+                
+                snapshots.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value.exists()) {
+                        const snapshot = result.value;
+                        const transactionType = historyPaths[index].type;
+                        
+                        snapshot.forEach(childSnapshot => {
+                            const transaction = childSnapshot.val();
+                            if (transaction && (transaction.timestamp || transaction.completionDate)) {
+                                allTransactions.push({
+                                    ...transaction,
+                                    type: transactionType,
+                                    id: childSnapshot.key,
+                                    timestamp: transaction.timestamp || transaction.completionDate
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if (allTransactions.length === 0) {
+                    historyContainer.innerHTML = '<p id="no-history-message">No transaction history found.</p>';
+                    return;
+                }
+
+                allTransactions.sort((a, b) => b.timestamp - a.timestamp);
+
+                historyContainer.innerHTML = ''; // Clear loading message
+
+                allTransactions.forEach(transaction => {
+                    const date = new Date(transaction.timestamp);
+                    const formattedDate = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    const formattedTime = date.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const transactionCard = document.createElement('div');
+                    transactionCard.classList.add('history-card', transaction.type);
+                    transactionCard.onclick = () => openModal(transaction.id);
+
+                    let iconClass;
+                    let amountSign = '';
+                    let amountClass;
+                    let transactionName = transaction.name;
+                    let amountValue = transaction.amount || 0;
+
+                    if (transaction.type === 'income' || transaction.type === 'deposit') {
+                        iconClass = 'fas fa-plus';
+                        amountSign = '+';
+                        amountClass = 'plus';
+                        if (transaction.type === 'deposit' && transaction.method) {
+                            transactionName = `Deposit via ${transaction.method}`;
+                        } else if (transaction.type === 'income' && transaction.taskName) {
+                            transactionName = transaction.taskName;
+                        } else {
+                            transactionName = transaction.name || 'Income';
+                        }
+                    } else if (transaction.type === 'planPurchase') {
+                        iconClass = 'fas fa-star';
+                        amountSign = '-';
+                        amountClass = 'plan';
+                        transactionName = transaction.name || 'Plan Purchase';
+                    } else if (transaction.type === 'withdrawal') {
+                        iconClass = 'fas fa-minus';
+                        amountSign = '-';
+                        amountClass = 'minus';
+                        if (transaction.method) {
+                            transactionName = `Withdrawal via ${transaction.method}`;
+                        } else {
+                            transactionName = transaction.name || 'Withdrawal';
+                        }
+                    } else if (transaction.type === 'premiumRequest') {
+                        iconClass = 'fas fa-crown';
+                        amountSign = '';
+                        amountClass = 'plus'; // Or a new class for premium
+                        transactionName = `Premium Request: ${transaction.plan || 'N/A'}`;
+                        amountValue = 'Free'; // Display 'Free' or a similar text
+                    }
+                    
+                    const displayAmount = (transaction.type === 'premiumRequest') ? amountValue : `$${amountValue.toFixed(2)}`;
+
+                    transactionCard.innerHTML = `
+                        <div class="history-icon">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div class="history-details">
+                            <h3>${truncateText(transactionName || 'Transaction', 2)}</h3>
+                            <p>${formattedDate} at ${formattedTime}</p>
+                        </div>
+                        <div class="history-amount ${amountClass}">
+                            ${amountSign}${displayAmount}
+                        </div>
+                    `;
+                    historyContainer.appendChild(transactionCard);
+                });
+            } catch (error) {
+                console.error("Error loading history:", error);
+                historyContainer.innerHTML = '<p id="no-history-message">Failed to load history. Please check your network or Firebase rules and try again.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

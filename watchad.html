@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Ads & Earn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--background-color) 0%, #e6f3ff 100%); /* Softer gradient background */
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            align-items: center;
+        }
+
+        .watch-ad-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .watch-ad-section h2 {
+            margin: 0 0 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ad-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Soft gradient for card */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12); /* Stronger, softer shadow */
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .ad-card:hover {
+            transform: scale(1.02);
+        }
+
+        .ad-card .icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            animation: pulse-icon 2s infinite ease-in-out;
+        }
+        .ad-card .icon-box i {
+            font-size: 3.5em;
+            color: #fff;
+        }
+
+        @keyframes pulse-icon {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .ad-card h3 {
+            margin: 0 0 10px;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .ad-card p {
+            font-size: 1em;
+            color: var(--light-text);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .ad-progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            height: 25px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .ad-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--secondary-color), #8bc34a);
+            border-radius: 25px;
+            transition: width 0.4s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .watch-ad-button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .watch-ad-button i {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+        .watch-ad-button .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .watch-ad-button:hover:not(:disabled) {
+            background: linear-gradient(45deg, #388e3c, #66bb6a);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.5);
+        }
+
+        .watch-ad-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.8;
+        }
+
+        .cooldown-timer {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 20px;
+            animation: fadeInOut 2s infinite alternate; /* Subtle breathing effect */
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+
+        /* Poptop (Modal) styles */
+        .poptop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .poptop-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .poptop-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .poptop-overlay.active .poptop-content {
+            transform: scale(1);
+        }
+        .poptop-content h3 {
+            margin: 0 0 15px;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .poptop-content p {
+            margin: 0 0 25px;
+            color: var(--light-text);
+            font-size: 1.1em;
+        }
+        .poptop-content .ok-button, .poptop-content .error-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .poptop-content .error-button {
+            background-color: var(--danger-color);
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div class="watch-ad-section">
+            <h2>Watch Ads & Earn</h2>
+            <div class="ad-card">
+                <div class="icon-box">
+                    <i class="fas fa-video"></i>
+                </div>
+                <h3>Watch Ads to Get Reward</h3>
+                <p>Watch 5 ads to earn $0.02 bonus!</p>
+                
+                <div class="ad-progress-container">
+                    <div class="ad-progress-bar" id="ad-progress-bar">0/5</div>
+                </div>
+
+                <button class="watch-ad-button" id="watch-ad-button"><i class="fas fa-play-circle"></i> Watch Ad Now</button>
+                <p class="cooldown-timer hidden" id="cooldown-timer">Next ad in: 00:00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poptop (Modal) for Win/Messages -->
+    <div id="poptop-overlay" class="poptop-overlay">
+        <div class="poptop-content">
+            <h3 id="poptop-title">Message</h3>
+            <p id="poptop-text"></p>
+            <button class="ok-button" onclick="closePoptop('success')">OK</button>
+            <button class="error-button hidden" onclick="closePoptop('error')">Close</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item active">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, set, update, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        const watchAdButton = document.getElementById('watch-ad-button');
+        const adProgressBar = document.getElementById('ad-progress-bar');
+        const cooldownTimerElement = document.getElementById('cooldown-timer');
+
+        const poptopOverlay = document.getElementById('poptop-overlay');
+        const poptopTitle = document.getElementById('poptop-title');
+        const poptopText = document.getElementById('poptop-text');
+        const poptopOkButton = poptopOverlay.querySelector('.ok-button');
+        const poptopErrorButton = poptopOverlay.querySelector('.error-button');
+
+        let currentUser = null;
+        let userData = null; // Store user data for ad logic
+        let cooldownInterval = null;
+
+        const ADS_TO_WATCH_FOR_BONUS = 5;
+        const BONUS_AMOUNT = 0.02;
+        const COOLDOWN_DURATION_MINUTES = 20; // 20 minutes
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+                userData = userSnapshot.val(); // Store user data
+                loadWatchAdData();
+                setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Helper function for vibration feedback
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Poptop (Modal) functions
+        function showPoptop(title, message, type = "success", onOkCallback) {
+            vibrate();
+            poptopTitle.textContent = title;
+            poptopText.innerHTML = message;
+
+            poptopOkButton.onclick = () => { closePoptop(); if (onOkCallback) onOkCallback(); };
+            poptopErrorButton.onclick = () => { closePoptop(); if (onOkCallback) onOkCallback(); };
+
+            if (type === "success") {
+                poptopOkButton.classList.remove('hidden');
+                poptopErrorButton.classList.add('hidden');
+            } else { // error type
+                poptopOkButton.classList.add('hidden');
+                poptopErrorButton.classList.remove('hidden');
+            }
+            poptopOverlay.classList.add('active');
+        }
+
+        window.closePoptop = function() {
+            poptopOverlay.classList.remove('active');
+        }
+
+        async function setupAdDisplayLogic() {
+            if (!currentUser || !userData) return;
+
+            const activePlans = userData.activePlans || {};
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Watch Ad page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Watch Ad page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Watch Ad page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on watch ad page.");
+            }
+        }
+
+        async function loadWatchAdData() {
+            if (!currentUser) return;
+            const userAdDataRef = ref(db, `users/${currentUser.uid}/watchAdData`);
+            const snapshot = await get(userAdDataRef);
+
+            const today = new Date().toDateString();
+            let adData = snapshot.exists() ? snapshot.val() : {};
+
+            // Reset data if it's a new day
+            if (adData.lastWatchDate !== today) {
+                adData = {
+                    lastWatchDate: today,
+                    adsWatchedToday: 0,
+                    lastAdTimestamp: 0,
+                    bonusClaimedToday: false
+                };
+                await set(userAdDataRef, adData); // Save reset data
+            }
+            updateWatchAdUI(adData);
+        }
+
+        function updateWatchAdUI(adData) {
+            const adsWatched = adData.adsWatchedToday || 0;
+            const bonusClaimed = adData.bonusClaimedToday || false;
+            const lastAdTime = adData.lastAdTimestamp || 0;
+
+            const progressPercentage = (adsWatched / ADS_TO_WATCH_FOR_BONUS) * 100;
+            adProgressBar.style.width = `${progressPercentage}%`;
+            adProgressBar.textContent = `${adsWatched}/${ADS_TO_WATCH_FOR_BONUS}`;
+
+            watchAdButton.disabled = true; // Disable by default until ready
+            watchAdButton.innerHTML = `<i class="fas fa-play-circle"></i> Watch Ad Now`; // Reset button text
+
+            if (bonusClaimed) {
+                watchAdButton.textContent = "Bonus Claimed For Today";
+                watchAdButton.disabled = true;
+                cooldownTimerElement.classList.add('hidden');
+            } else if (adsWatched >= ADS_TO_WATCH_FOR_BONUS) {
+                watchAdButton.innerHTML = `Claim Bonus: $${BONUS_AMOUNT.toFixed(2)}`;
+                watchAdButton.disabled = false;
+                cooldownTimerElement.classList.add('hidden');
+            } else {
+                const now = Date.now();
+                const cooldownEndTime = lastAdTime + (COOLDOWN_DURATION_MINUTES * 60 * 1000);
+                const remainingCooldown = cooldownEndTime - now;
+
+                if (remainingCooldown > 0) {
+                    watchAdButton.innerHTML = `<i class="fas fa-hourglass-half"></i> Please wait...`;
+                    watchAdButton.disabled = true;
+                    cooldownTimerElement.classList.remove('hidden');
+                    startCooldownTimer(remainingCooldown);
+                } else {
+                    watchAdButton.innerHTML = `<i class="fas fa-play-circle"></i> Watch Ad Now`;
+                    watchAdButton.disabled = false;
+                    cooldownTimerElement.classList.add('hidden');
+                    if (cooldownInterval) clearInterval(cooldownInterval); // Clear any old timer
+                }
+            }
+        }
+
+        function startCooldownTimer(remainingTimeMs) {
+            if (cooldownInterval) clearInterval(cooldownInterval); // Clear existing interval
+
+            const updateTimer = () => {
+                const now = Date.now();
+                const timeLeft = Math.max(0, cooldownTimeEn<t - now); // Recalculate accurately based on end time
+                
+                const minutes = Math.floor(timeLeft / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                cooldownTimerElement.textContent = `Next ad in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(cooldownInterval);
+                    cooldownTimerElement.classList.add('hidden');
+                    watchAdButton.innerHTML = `<i class="fas fa-play-circle"></i> Watch Ad Now`;
+                    watchAdButton.disabled = false;
+                    showPoptop("Ready!", "You can watch another ad now!", "success");
+                }
+            };
+
+            const cooldownTimeEn = Date.now() + remainingTimeMs; // Calculate explicit end time
+            cooldownInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Call immediately to avoid 1-second delay
+        }
+
+        watchAdButton.addEventListener('click', async () => {
+            vibrate();
+            if (watchAdButton.disabled) return;
+
+            const userAdDataRef = ref(db, `users/${currentUser.uid}/watchAdData`);
+            const snapshot = await get(userAdDataRef);
+            let adData = snapshot.val();
+
+            if (adData.adsWatchedToday >= ADS_TO_WATCH_FOR_BONUS && !adData.bonusClaimedToday) {
+                // User is trying to claim bonus
+                await claimBonus(adData);
+            } else if (adData.adsWatchedToday < ADS_TO_WATCH_FOR_BONUS && !adData.bonusClaimedToday) {
+                // User is watching a regular ad
+                watchAdButton.disabled = true;
+                watchAdButton.innerHTML = `<span class="spinner"></span> Loading Ad...`;
+                
+                // Changed from 'pop' to default rewarded/interstitial ad
+                await displayAdStandard(async (adWatched) => {
+                    if (adWatched) {
+                        adData.adsWatchedToday = (adData.adsWatchedToday || 0) + 1;
+                        adData.lastAdTimestamp = Date.now();
+                        await update(userAdDataRef, adData);
+                        showPoptop("Success!", `Ad watched! ${adData.adsWatchedToday}/${ADS_TO_WATCH_FOR_BONUS} ads completed.`, "success", () => updateWatchAdUI(adData));
+                    } else {
+                        showPoptop("Ad Not Watched", "You need to watch the ad to progress.", "error", () => updateWatchAdUI(adData));
+                    }
+                });
+            } else {
+                showPoptop("Info", "No more ads or bonus already claimed for today.", "error");
+                updateWatchAdUI(adData);
+            }
+        });
+
+        // This is the new function to display standard rewarded/interstitial ads
+        async function displayAdStandard(onAdComplete) {
+            if (typeof show_9696042 === 'function') {
+                show_9696042().then(() => { // Call without arguments for standard rewarded interstitial
+                    if (onAdComplete) onAdComplete(true);
+                }).catch(e => {
+                    showPoptop("Ad Error", "Failed to load ad. Please try again.", "error");
+                    if (onAdComplete) onAdComplete(false);
+                });
+            } else {
+                showPoptop("Error", "Ad service not available. Please try again later.", "error");
+                if (onAdComplete) onAdComplete(false);
+            }
+        }
+
+
+        async function claimBonus(adData) {
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val();
+            const currentBalance = userData.balance || 0;
+            const newBalance = currentBalance + BONUS_AMOUNT;
+
+            try {
+                await update(userRef, { balance: newBalance });
+                
+                const incomeHistoryRef = push(ref(db, `users/${currentUser.uid}/incomeHistory`));
+                await set(incomeHistoryRef, {
+                    taskName: 'Watch Ad Bonus',
+                    amount: BONUS_AMOUNT,
+                    timestamp: serverTimestamp()
+                });
+
+                adData.bonusClaimedToday = true;
+                await update(ref(db, `users/${currentUser.uid}/watchAdData`), adData);
+
+                showPoptop("Bonus Claimed!", `You earned $${BONUS_AMOUNT.toFixed(2)}! Your new balance is $${newBalance.toFixed(2)}`, "success", () => updateWatchAdUI(adData));
+            } catch (error) {
+                console.error("Error claiming bonus:", error);
+                showPoptop("Error", "Failed to claim bonus. Please try again.", "error", () => updateWatchAdUI(adData));
+            }
+        }
+
+        // Ensure vibration on all interactive elements
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', vibrate);
+            });
+        });
+    </script>
+</body>
+</html>

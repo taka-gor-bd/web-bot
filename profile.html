@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+            --success-color: #4caf50; /* নতুন যুক্ত করা হয়েছে */
+            --error-color: #f44336; /* নতুন যুক্ত করা হয়েছে */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+        }
+
+        /* Profile Header Section */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 18px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: 600;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid var(--primary-color);
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info h2 {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin: 0;
+            margin-right: 8px;
+        }
+
+        .user-info p {
+            font-size: 0.9em;
+            color: var(--light-text);
+            margin: 0;
+        }
+        
+        .bluetick {
+            color: #1DA1F2;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+
+        /* Stats Grid Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            color: #fff;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        .stat-card p {
+            margin: 5px 0 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .stat-card.green { background: linear-gradient(45deg, #4caf50, #8bc34a); }
+        .stat-card.blue { background: linear-gradient(45deg, #2196f3, #03a9f4); }
+        .stat-card.purple { background: linear-gradient(45deg, #9c27b0, #ba68c8); }
+        .stat-card.orange { background: linear-gradient(45deg, #ff9800, #ffb74d); }
+        
+        .referral-box {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+        .referral-box h2 {
+            margin: 0 0 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .referral-input-group {
+            display: flex;
+            align-items: center;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .referral-input-group input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 15px;
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+        .referral-input-group .copy-icon {
+            padding: 12px 15px;
+            background-color: var(--primary-color);
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .leaderboard-section h2 {
+            margin-top: 0;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .leaderboard-list {
+            background-color: var(--card-background);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f8f8f8;
+        }
+        
+        .leaderboard-item .rank {
+            font-size: 1.2em;
+            width: 30px;
+            text-align: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .leaderboard-item .user-info {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .leaderboard-item .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #fff;
+        }
+        
+        .leaderboard-item .score {
+            font-weight: 600;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background-color: var(--danger-color);
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--card-background);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .avatar-option:hover {
+            border-color: var(--primary-color);
+        }
+        
+        /* Custom Alert Styles - নতুন যুক্ত করা হয়েছে */
+        .custom-alert-box {
+            padding: 30px;
+        }
+        .alert-icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+        }
+        .alert-icon.success { color: var(--success-color); }
+        .alert-icon.error { color: var(--error-color); }
+        
+        .custom-alert-box h3 {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        .custom-alert-box p {
+            margin: 0 0 20px;
+            color: var(--light-text);
+        }
+        .alert-close-btn {
+            padding: 10px 25px;
+            border: none;
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div id="profile-avatar" class="profile-avatar"></div>
+            <div class="profile-info">
+                <div class="user-info">
+                    <h2 id="profile-username">Loading...</h2>
+                    <i id="premium-bluetick" class="fas fa-check-circle bluetick hidden"></i>
+                </div>
+                <p id="profile-email">loading@example.com</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <h3>Total Referrals</h3>
+                <p id="referral-count">0</p>
+            </div>
+            <div class="stat-card blue">
+                <h3>Referral Earnings</h3>
+                <p id="referral-earnings">$ 0.00</p>
+            </div>
+            <div class="stat-card purple">
+                <h3>Total Users</h3>
+                <p id="total-users">0</p>
+            </div>
+            <div class="stat-card orange">
+                <h3>Premium Users</h3>
+                <p id="premium-users">0</p>
+            </div>
+        </div>
+        
+        <!-- Referral Box -->
+        <div class="referral-box">
+            <h2>Your Referral Link</h2>
+            <div class="referral-input-group">
+                <input type="text" id="referral-link" value="Loading..." readonly>
+                <i class="fas fa-copy copy-icon" id="copy-referral-link"></i>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section">
+            <h2>Leaderboard (Top Referrers)</h2>
+            <div class="leaderboard-list" id="leaderboard-container">
+                <p id="leaderboard-loading">Loading leaderboard...</p>
+            </div>
+        </div>
+
+        <button class="btn-logout" id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatar-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Choose Your Avatar</h3>
+            <div id="avatar-grid" class="avatar-grid"></div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal - নতুন যুক্ত করা হয়েছে -->
+    <div id="custom-alert" class="modal-overlay">
+        <div class="modal-content custom-alert-box">
+            <i id="alert-icon" class="fas alert-icon"></i>
+            <h3 id="alert-title"></h3>
+            <p id="alert-message"></p>
+            <button id="alert-close-btn" class="alert-close-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, query, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        let currentUser = null;
+
+        const avatars = [
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Pepper', 'https://api.dicebear.com/8.x/adventurer/svg?seed=Mimi',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Baby', 'https://api.dicebear.com/8.x/adventurer/svg?seed=Loki',
+            'https://api.dicebear.com/8.x/pixel-art/svg?seed=John', 'https://api.dicebear.com/8.x/pixel-art/svg?seed=Jane',
+            'https://api.dicebear.com/8.x/pixel-art/svg?seed=Max', 'https://api.dicebear.com/8.x/pixel-art/svg?seed=Zoe',
+            'https://api.dicebear.com/8.x/bottts/svg?seed=Dusty', 'https://api.dicebear.com/8.x/bottts/svg?seed=Sassy',
+            'https://api.dicebear.com/8.x/bottts/svg?seed=Buddy', 'https://api.dicebear.com/8.x/bottts/svg?seed=Charlie'
+        ];
+
+        // Custom Alert Elements - নতুন যুক্ত করা হয়েছে
+        const customAlert = document.getElementById('custom-alert');
+        const alertIcon = document.getElementById('alert-icon');
+        const alertTitle = document.getElementById('alert-title');
+        const alertMessage = document.getElementById('alert-message');
+        const alertCloseBtn = document.getElementById('alert-close-btn');
+
+        // Show Custom Alert Function - নতুন যুক্ত করা হয়েছে
+        const showAlert = (title, message, type = 'success') => {
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+
+            alertIcon.className = 'fas alert-icon'; // Reset classes
+            if (type === 'success') {
+                alertIcon.classList.add('fa-check-circle', 'success');
+            } else {
+                alertIcon.classList.add('fa-times-circle', 'error');
+            }
+            
+            customAlert.classList.add('show');
+        };
+
+        // Hide Custom Alert - নতুন যুক্ত করা হয়েছে
+        const hideAlert = () => {
+            customAlert.classList.remove('show');
+        };
+        alertCloseBtn.addEventListener('click', hideAlert);
+        customAlert.addEventListener('click', (e) => {
+            if (e.target === customAlert) {
+                hideAlert();
+            }
+        });
+
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadProfileData(user);
+                await loadLeaderboardAndStats();
+                initializeAvatarPicker();
+                await setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function setupAdDisplayLogic() {
+            if (!currentUser) return;
+
+            const userRef = ref(db, 'users/' + currentUser.uid);
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val() || {};
+            const activePlans = userData.activePlans || {};
+
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Profile page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Profile page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Profile page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on profile page.");
+            }
+        }
+        
+        async function loadProfileData(user) {
+            const userRef = ref(db, 'users/' + user.uid);
+            const userSnapshot = await get(userRef);
+
+            if (userSnapshot.exists()) {
+                const userData = userSnapshot.val();
+                
+                document.getElementById('profile-username').textContent = userData.username;
+                document.getElementById('profile-email').textContent = user.email;
+
+                const profileAvatar = document.getElementById('profile-avatar');
+                if (userData.avatar) {
+                    profileAvatar.style.backgroundImage = `url('${userData.avatar}')`;
+                    profileAvatar.textContent = '';
+                } else {
+                    profileAvatar.style.backgroundImage = 'none';
+                    profileAvatar.textContent = userData.username.charAt(0).toUpperCase();
+                }
+                
+                // Determine premium status for blue tick based on active plans
+                const activePlans = userData.activePlans || {};
+                const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+
+                if (hasActivePlan) {
+                    document.getElementById('premium-bluetick').classList.remove('hidden');
+                } else {
+                    document.getElementById('premium-bluetick').classList.add('hidden');
+                }
+                
+                document.getElementById('referral-count').textContent = userData.referralCount || 0;
+                document.getElementById('referral-earnings').textContent = `$ ${(userData.referralEarnings || 0).toFixed(2)}`;
+                
+                const referralLink = `${window.location.origin}/index.html?ref=${user.uid}`;
+                document.getElementById('referral-link').value = referralLink;
+            } else {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            }
+        }
+        
+        async function loadLeaderboardAndStats() {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const totalUsersElem = document.getElementById('total-users');
+            const premiumUsersElem = document.getElementById('premium-users');
+            
+            leaderboardContainer.innerHTML = '<p id="leaderboard-loading">Loading...</p>';
+            
+            const usersRef = query(ref(db, 'users'));
+            const usersSnapshot = await get(usersRef);
+
+            if (usersSnapshot.exists()) {
+                let allUsers = [];
+                let totalUsers = 0;
+                let premiumUsers = 0;
+
+                usersSnapshot.forEach(childSnapshot => {
+                    const userData = childSnapshot.val();
+                    allUsers.push(userData);
+                    totalUsers++;
+                    // Check for any active plan (paid or free premium)
+                    const activePlans = userData.activePlans || {};
+                    if (Object.values(activePlans).some(plan => plan.status === 'active')) {
+                        premiumUsers++;
+                    }
+                });
+
+                totalUsersElem.textContent = totalUsers;
+                premiumUsersElem.textContent = premiumUsers;
+
+                allUsers.sort((a, b) => (b.referralCount || 0) - (a.referralCount || 0));
+
+                leaderboardContainer.innerHTML = '';
+
+                allUsers.slice(0, 10).forEach((user, index) => {
+                    const rank = index + 1;
+                    const item = document.createElement('div');
+                    item.classList.add('leaderboard-item');
+                    
+                    const avatarDiv = document.createElement('div');
+                    avatarDiv.classList.add('user-avatar');
+                    if(user.avatar) {
+                        avatarDiv.style.backgroundImage = `url('${user.avatar}')`;
+                    } else {
+                        avatarDiv.style.backgroundColor = getAvatarColor(index);
+                        avatarDiv.textContent = user.username ? user.username.charAt(0).toUpperCase() : '?';
+                    }
+
+                    item.innerHTML = `
+                        <span class="rank">${rank}.</span>
+                        <div class="user-info">
+                            ${avatarDiv.outerHTML}
+                            <span>${user.username || 'N/A'}</span>
+                        </div>
+                        <span class="score">
+                            <i class="fas fa-users"></i>
+                            ${user.referralCount || 0}
+                        </span>
+                    `;
+                    leaderboardContainer.appendChild(item);
+                });
+            } else {
+                leaderboardContainer.innerHTML = '<p>No leaderboard data available.</p>';
+                totalUsersElem.textContent = 0;
+                premiumUsersElem.textContent = 0;
+            }
+        }
+        
+        function getAvatarColor(index) {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#8bc34a'];
+            return colors[index % colors.length];
+        }
+
+        function initializeAvatarPicker() {
+            const avatarModal = document.getElementById('avatar-modal');
+            const avatarGrid = document.getElementById('avatar-grid');
+            const profileAvatar = document.getElementById('profile-avatar');
+
+            avatarGrid.innerHTML = '';
+            avatars.forEach(avatarUrl => {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('avatar-option');
+                avatarDiv.style.backgroundImage = `url('${avatarUrl}')`;
+                avatarDiv.dataset.url = avatarUrl;
+                avatarGrid.appendChild(avatarDiv);
+            });
+            
+            profileAvatar.addEventListener('click', () => {
+                avatarModal.classList.add('show');
+            });
+
+            avatarModal.addEventListener('click', (e) => {
+                if(e.target === avatarModal) {
+                    avatarModal.classList.remove('show');
+                }
+            });
+
+            avatarGrid.addEventListener('click', async (e) => {
+                if(e.target.classList.contains('avatar-option')) {
+                    const selectedAvatarUrl = e.target.dataset.url;
+                    
+                    try {
+                        const userRef = ref(db, 'users/' + currentUser.uid);
+                        await update(userRef, { avatar: selectedAvatarUrl });
+                        
+                        profileAvatar.style.backgroundImage = `url('${selectedAvatarUrl}')`;
+                        profileAvatar.textContent = '';
+                        avatarModal.classList.remove('show');
+                        showAlert('Success!', 'Your avatar has been updated successfully.', 'success'); // পরিবর্তন
+
+                    } catch (error) {
+                        console.error("Error updating avatar:", error);
+                        showAlert('Error!', 'Failed to update avatar. Please try again.', 'error'); // পরিবর্তন
+                    }
+                }
+            });
+        }
+
+        document.getElementById('copy-referral-link').addEventListener('click', () => {
+            const referralLinkInput = document.getElementById('referral-link');
+            // Select the text field
+            referralLinkInput.select();
+            // For mobile devices
+            referralLinkInput.setSelectionRange(0, 99999); 
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(referralLinkInput.value).then(() => {
+                showAlert('Copied!', 'The referral link has been copied to your clipboard.', 'success'); // পরিবর্তন
+            }).catch(err => {
+                showAlert('Copy Failed', 'Could not copy the link. Please try again.', 'error'); // পরিবর্তন
+                console.error('Failed to copy text: ', err);
+            });
+        });
+        
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Error signing out: ", error);
+            }
+        });
+    </script>
+</body>
+</html>

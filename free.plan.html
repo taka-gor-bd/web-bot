@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Plan Tasks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tasks-section h2 {
+            margin: 0 0 15px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .tasks-container {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .task-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .task-card:hover:not(.completed) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-card .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-card h3 {
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .task-card .reward {
+            color: var(--secondary-color);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        
+        .task-card p {
+            margin: 0 0 15px;
+            color: var(--light-text);
+            font-size: 1em;
+            line-height: 1.4;
+        }
+        
+        .task-card .task-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .task-card .do-task {
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            color: #fff;
+        }
+        .task-card .do-task:hover {
+            background: linear-gradient(45deg, #fe8c6a, #ffb4a2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .task-card .check-task {
+            background: linear-gradient(45deg, #81c784, #a5d6a7);
+            color: #fff;
+        }
+        .task-card .check-task:hover {
+            background: linear-gradient(45deg, #8bc34a, #c5e1a5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .task-card .disabled-task {
+            background-color: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .premium-message {
+            text-align: center;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        /* Poptop (Modal) styles for general messages */
+        .poptop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .poptop-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .poptop-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .poptop-overlay.active .poptop-content {
+            transform: scale(1);
+        }
+        .poptop-content h3 {
+            margin: 0 0 15px;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .poptop-content p {
+            margin: 0 0 25px;
+            color: var(--light-text);
+            font-size: 1.1em;
+        }
+        .poptop-content .ok-button, .poptop-content .error-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .poptop-content .error-button {
+            background-color: var(--danger-color);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div class="tasks-section">
+            <h2 id="tasks-title">Free Plan Tasks</h2>
+            <div id="tasks-container" class="tasks-container">
+                <p id="tasks-loading">Loading tasks...</p>
+            </div>
+            <div id="not-free-plan-message" class="premium-message hidden">
+                <p>You do not have an active Free Plan. Go back to <a href="plans.html" style="color: var(--primary-color); text-decoration: underline;">Plans</a> to activate a plan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poptop (Modal) for general messages -->
+    <div id="poptop-overlay" class="poptop-overlay">
+        <div class="poptop-content">
+            <h3 id="poptop-title">Message</h3>
+            <p id="poptop-text"></p>
+            <button class="ok-button" onclick="closePoptop('success')">OK</button>
+            <button class="error-button hidden" onclick="closePoptop('error')">Close</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item active"> <!-- This is the active item for free.plan.html -->
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, set, serverTimestamp, update, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let userData = null; // Store user data here
+
+        // Poptop (Modal) elements
+        const poptopOverlay = document.getElementById('poptop-overlay');
+        const poptopTitle = document.getElementById('poptop-title');
+        const poptopText = document.getElementById('poptop-text');
+        const poptopOkButton = poptopOverlay.querySelector('.ok-button');
+        const poptopErrorButton = poptopOverlay.querySelector('.error-button');
+
+        // Tasks for the Free Plan, summing up to $0.20
+        const freePlanTasks = [
+            { id: 'fp-1', name: 'Complete a Survey', description: 'Complete a quick survey to earn rewards.', link: "https://www.example.com/survey", reward: 0.10, duration: 30 },
+            { id: 'fp-2', name: 'Subscribe to Newsletter', description: 'Subscribe to our weekly newsletter to earn.', link: "https://www.example.com/newsletter", reward: 0.10, duration: 15 }
+        ];
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+                userData = userSnapshot.val(); // Store user data
+                loadTasks();
+                setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Poptop (Modal) functions
+        function showPoptop(title, message, type = "success", onOkCallback) {
+            vibrate();
+            poptopTitle.textContent = title;
+            poptopText.innerHTML = message;
+
+            poptopOkButton.onclick = () => { closePoptop(); if (onOkCallback) onOkCallback(); };
+            poptopErrorButton.onclick = () => { closePoptop(); if (onOkCallback) onOkCallback(); };
+
+            if (type === "success") {
+                poptopOkButton.classList.remove('hidden');
+                poptopErrorButton.classList.add('hidden');
+            } else { // error type
+                poptopOkButton.classList.add('hidden');
+                poptopErrorButton.classList.remove('hidden');
+            }
+            poptopOverlay.classList.add('active');
+        }
+
+        window.closePoptop = function() {
+            poptopOverlay.classList.remove('active');
+        }
+        
+        async function setupAdDisplayLogic() {
+            if (!currentUser || !userData) return;
+
+            const activePlans = userData.activePlans || {};
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Free Plan Tasks page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Free Plan Tasks page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Free Plan Tasks page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on free plan tasks page.");
+            }
+        }
+
+        function getTodayDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        async function loadTasks() {
+            const tasksContainer = document.getElementById('tasks-container');
+            const message = document.getElementById('not-free-plan-message');
+            
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val() || {};
+            
+            // Check if user has an active free plan
+            const activePlans = userData.activePlans || {};
+            const activeFreePlan = Object.values(activePlans).find(plan => plan.id === 'free-plan' && plan.status === 'active');
+
+            if (!activeFreePlan) {
+                tasksContainer.classList.add('hidden');
+                message.classList.remove('hidden');
+                return;
+            }
+            
+            tasksContainer.innerHTML = '';
+            message.classList.add('hidden');
+
+            const todayDate = getTodayDate();
+            const completedTasksRef = ref(db, `users/${currentUser.uid}/completedTasks/${todayDate}`);
+            const completedTasksSnapshot = await get(completedTasksRef);
+            const completedTasks = completedTasksSnapshot.val() || {};
+
+            freePlanTasks.forEach(task => {
+                const isCompleted = completedTasks[task.id];
+                const taskCard = document.createElement('div');
+                taskCard.classList.add('task-card');
+                taskCard.innerHTML = `
+                    <div class="task-header">
+                        <h3>${task.name}</h3>
+                        <span class="reward">$${task.reward.toFixed(2)}</span>
+                    </div>
+                    <p>${task.description}</p>
+                    <button class="task-button do-task" 
+                        data-task-id="${task.id}" 
+                        data-task-link="${task.link}" 
+                        data-reward="${task.reward}"
+                        data-duration="${task.duration}">
+                        ${isCompleted ? 'Completed Today' : 'Do Task'}
+                    </button>
+                `;
+                if (isCompleted) {
+                     const button = taskCard.querySelector('.task-button');
+                     button.classList.remove('do-task');
+                     button.classList.add('disabled-task');
+                     button.disabled = true;
+                }
+                tasksContainer.appendChild(taskCard);
+            });
+
+            document.querySelectorAll('.task-button').forEach(button => {
+                if (!button.disabled) {
+                    setupTaskButton(button);
+                }
+                button.addEventListener('click', vibrate);
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', vibrate);
+            });
+        }
+        
+        function setupTaskButton(button) {
+            const taskId = button.dataset.taskId;
+            const taskLink = button.dataset.taskLink;
+            const reward = parseFloat(button.dataset.reward);
+            const duration = parseInt(button.dataset.duration);
+
+            const storedStateKey = `task_state_${currentUser.uid}_${taskId}`;
+            const storedState = JSON.parse(localStorage.getItem(storedStateKey));
+            
+            if (storedState && storedState.startTime) {
+                const timeElapsed = (Date.now() - storedState.startTime) / 1000;
+                if (timeElapsed < duration) {
+                    startTimer(button, taskId, taskLink, reward, duration, storedState.startTime, storedStateKey);
+                } else {
+                    button.classList.remove('do-task');
+                    button.classList.add('check-task');
+                    button.textContent = 'Check & Complete';
+                    // Re-bind event listener
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                    newButton.addEventListener('click', () => { vibrate(); completeTask(newButton, taskId, reward, storedStateKey); });
+                }
+            } else {
+                button.addEventListener('click', () => doTask(button, taskId, taskLink, reward, duration, storedStateKey));
+            }
+        }
+        
+        function doTask(button, taskId, taskLink, reward, duration, storedStateKey) {
+            const startTime = Date.now();
+            localStorage.setItem(storedStateKey, JSON.stringify({
+                startTime: startTime
+            }));
+            
+            startTimer(button, taskId, taskLink, reward, duration, startTime, storedStateKey);
+
+            if (taskLink !== '#') {
+                window.open(taskLink, '_blank');
+            }
+        }
+
+        function startTimer(button, taskId, taskLink, reward, duration, startTime, storedStateKey) {
+            button.classList.remove('do-task');
+            button.classList.add('disabled-task');
+            button.disabled = true;
+            
+            const interval = setInterval(() => {
+                const timeElapsed = (Date.now() - startTime) / 1000;
+                const timeLeft = duration - Math.floor(timeElapsed);
+                
+                if (timeLeft > 0) {
+                    button.textContent = `Check after ${timeLeft}s`;
+                } else {
+                    clearInterval(interval);
+                    button.classList.remove('disabled-task');
+                    button.classList.add('check-task');
+                    button.textContent = 'Check & Complete';
+                    button.disabled = false;
+                    
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
+                    newButton.addEventListener('click', () => { vibrate(); completeTask(newButton, taskId, reward, storedStateKey); });
+                }
+            }, 1000);
+        }
+
+        async function completeTask(button, taskId, reward, storedStateKey) {
+            button.disabled = true; // Disable button immediately to prevent double click
+            showPoptop("Loading Ad...", "Please wait while we prepare your ad.", "info");
+
+            if (typeof show_9696042 === 'function') {
+                show_9696042('pop').then(async () => {
+                    // Ad was watched/closed by user, now complete the task
+                    const userRef = ref(db, `users/${currentUser.uid}`);
+                    const userSnapshot = await get(userRef);
+                    const userData = userSnapshot.val();
+                    const currentBalance = userData.balance || 0;
+                    const newBalance = currentBalance + reward;
+                    
+                    const taskName = freePlanTasks.find(t => t.id === taskId).name;
+                    const todayDate = getTodayDate();
+                    
+                    try {
+                        await update(userRef, { balance: newBalance });
+                        
+                        const incomeHistoryRef = push(ref(db, `users/${currentUser.uid}/incomeHistory`));
+                        await set(incomeHistoryRef, {
+                            taskName: taskName,
+                            amount: reward,
+                            timestamp: serverTimestamp()
+                        });
+                        
+                        await set(ref(db, `users/${currentUser.uid}/completedTasks/${todayDate}/${taskId}`), true);
+                        
+                        localStorage.removeItem(storedStateKey); // Remove state after completion
+                        
+                        showPoptop("Congratulations!", `You earned $${reward.toFixed(2)}. Your new balance is $${newBalance.toFixed(2)}.`, "success");
+                        
+                        button.textContent = 'Completed Today';
+                        button.classList.remove('check-task');
+                        button.classList.add('disabled-task');
+                        button.disabled = true;
+
+                    } catch (error) {
+                        console.error("Error completing task after ad:", error);
+                        showPoptop("Error", "Failed to complete task. Please try again.", "error", () => {
+                            button.disabled = false; // Re-enable button on error
+                        });
+                    }
+                }).catch((e) => {
+                    // Ad failed to load or was dismissed by user without completion
+                    console.error("Ad failed or was dismissed:", e);
+                    showPoptop("Ad Not Completed", "You need to watch the ad fully to get the reward. Please try again.", "error", () => {
+                        button.disabled = false; // Re-enable button on ad failure
+                    });
+                });
+            } else {
+                // Ad SDK not loaded
+                showPoptop("Error", "Ad service not available. Please try again later.", "error", () => {
+                    button.disabled = false; // Re-enable button
+                });
+            }
+        }
+    </script>
+</body>
+</html>

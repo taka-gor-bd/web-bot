@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #42a5f5, #26a69a);
+            color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .balance-card h3 {
+            margin: 0 0 5px;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        .balance-card .balance-amount {
+            font-size: 2.8em;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .selection-section {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .selection-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .payment-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-background);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .payment-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .payment-button img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+        .payment-button span {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        .country-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-background);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .country-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .country-button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+        .country-button span {
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .coming-soon-message {
+            text-align: center;
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 10px;
+            color: #1565c0;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        /* Deposit Form Section */
+        .deposit-form-section {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+        .deposit-form-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+        }
+        .deposit-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .deposit-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .deposit-info p {
+            margin: 5px 0;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .deposit-info p strong {
+            font-size: 1.1em;
+            color: var(--primary-color);
+        }
+        .copy-button {
+            background: none;
+            border: none;
+            color: #2196f3;
+            cursor: pointer;
+            font-size: 1em;
+            margin-left: 10px;
+            transition: color 0.2s;
+        }
+        .copy-button:hover {
+            color: #1976d2;
+        }
+        .deposit-info img {
+            display: block;
+            margin: 10px auto;
+            max-width: 150px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .deposit-form .form-group {
+            margin-bottom: 15px;
+        }
+        .deposit-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .deposit-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .deposit-form input[type="file"] {
+            padding: 8px;
+        }
+
+        .summary-box {
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .summary-box p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .summary-box p strong {
+            color: var(--secondary-color);
+        }
+
+        .deposit-form .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #a4e6a8, #74a677);
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+        .deposit-form .submit-button:hover {
+            background: linear-gradient(45deg, #66bb6a, #4caf50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+
+        /* Custom Alert Modal */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .custom-alert-box {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .custom-alert-box h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: var(--primary-color);
+        }
+        .custom-alert-box p {
+            margin: 15px 0;
+            color: var(--text-color);
+        }
+        .custom-alert-box button {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .custom-alert-box button:hover {
+            background: #e64a19;
+        }
+
+        .processing-icon {
+            font-size: 3em;
+            color: #fbc02d;
+            animation: rotate 1s linear infinite;
+        }
+
+        .success-icon {
+            font-size: 3em;
+            color: var(--secondary-color);
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div class="header">
+            <a id="back-button" class="close-button hidden">&times;</a>
+            <h1>Deposit</h1>
+        </div>
+
+        <div class="balance-card">
+            <h3>Your Balance</h3>
+            <div class="balance-amount" id="user-balance">$0.00</div>
+        </div>
+
+        <div id="country-selection-section" class="selection-section">
+            <h2>Select Your Region</h2>
+            <div id="country-buttons-container" class="country-grid">
+                </div>
+        </div>
+
+        <div id="payment-selection-section" class="selection-section hidden">
+            <h2 id="payment-method-title">Select Payment Method</h2>
+            <div id="payment-method-container" class="payment-grid">
+                </div>
+        </div>
+
+        <div id="deposit-form-section" class="deposit-form-section hidden">
+            <h2 id="form-title">Deposit via Method</h2>
+            <div class="deposit-info">
+                </div>
+            
+            <form id="deposit-form" class="deposit-form">
+                <div class="form-group">
+                    <label for="amount">Deposit Amount (USD)</label>
+                    <input type="number" id="amount" placeholder="Enter amount in USD" step="1" min="1" required>
+                </div>
+
+                <div id="local-amount-summary" class="summary-box hidden">
+                    <p>Amount to send: <strong id="summary-local">৳0.00</strong></p>
+                </div>
+
+                <div class="form-group">
+                    <label id="transaction-label" for="transaction-id">Transaction ID / Hash</label>
+                    <input type="text" id="transaction-id" placeholder="Your transaction reference" required>
+                </div>
+                
+                <button type="submit" class="submit-button">Submit Deposit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="custom-alert-overlay hidden">
+        <div class="custom-alert-box">
+            <div id="alert-icon-container"></div>
+            <h3 id="alert-title"></h3>
+            <p id="alert-message"></p>
+            <button id="alert-ok-button" class="hidden">OK</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, serverTimestamp, update, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let userBalance = 0;
+        let selectedMethod = '';
+        let selectedCountry = '';
+        let userData = null; // To store user data for ad logic
+
+        const bdtExchangeRate = 110.00; 
+        const inrExchangeRate = 83.00;
+        const minimumDeposit = 5;
+
+        const countryData = [
+            { id: 'bangladesh', name: 'Bangladesh', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/bd.svg', status: 'available' },
+            { id: 'india', name: 'India', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/in.svg', status: 'available' },
+            { id: 'international', name: 'International', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us.svg', status: 'available' },
+        ];
+
+        const paymentMethods = {
+            international: [
+                { id: 'binance', name: 'Binance Pay', icon: 'https://via.placeholder.com/50/FFC107/000000?text=BNB', fee: 0.5 },
+                { id: 'bybit', name: 'Bybit', icon: 'https://via.placeholder.com/50/003366/FFFFFF?text=BYB', fee: 0.5 },
+                { id: 'bitget', name: 'Bitget', icon: 'https://via.placeholder.com/50/FF6400/FFFFFF?text=BTG', fee: 0.5 },
+            ],
+            bangladesh: [
+                { id: 'bkash', name: 'bKash', icon: 'https://via.placeholder.com/50/E2136E/FFFFFF?text=BK', fee: 0 },
+                { id: 'nagad', name: 'Nagad', icon: 'https://via.placeholder.com/50/FF6400/FFFFFF?text=NGD', fee: 0 },
+                { id: 'upay', name: 'Upay', icon: 'https://via.placeholder.com/50/662D91/FFFFFF?text=UP', fee: 0 },
+            ],
+            india: [
+                { id: 'paytm', name: 'Paytm', icon: 'https://via.placeholder.com/50/00B9F1/FFFFFF?text=PTM', fee: 0 },
+                { id: 'gpay', name: 'GPay', icon: 'https://via.placeholder.com/50/4285F4/FFFFFF?text=GPY', fee: 0 },
+                { id: 'phonepe', name: 'PhonePe', icon: 'https://via.placeholder.com/50/5F259F/FFFFFF?text=PHP', fee: 0 },
+            ],
+        };
+
+        const depositDetails = {
+            binance: {
+                idType: 'Pay ID',
+                idText: 'YOUR_BINANCE_PAY_ID_HERE',
+                infoText: 'Please send USDT via Binance Pay to this ID and enter your transaction ID.',
+            },
+            bybit: {
+                idType: 'Wallet Address',
+                idText: 'TRC20-ADDRESS-HERE',
+                infoText: 'Please send USDT (TRC20) to this address and enter your transaction hash.',
+            },
+            bitget: {
+                idType: 'UID',
+                idText: 'YOUR_BITGET_UID_HERE',
+                infoText: 'Please send money and enter your transaction ID and Bitget UID.',
+            },
+            bkash: {
+                idType: 'Account Number',
+                idText: '01XXXXXXXXX',
+                infoText: 'Send money to this bKash Agent number and enter your transaction ID.',
+            },
+            nagad: {
+                idType: 'Account Number',
+                idText: '01XXXXXXXXX',
+                infoText: 'Send money to this Nagad Personal number and enter your transaction ID.',
+            },
+            upay: {
+                idType: 'Account Number',
+                idText: '01XXXXXXXXX',
+                infoText: 'Send money to this Upay Personal number and enter your transaction ID.',
+            },
+            paytm: {
+                idType: 'Mobile Number',
+                idText: '91XXXXXXXXX',
+                infoText: 'Send money to this Paytm number and enter your transaction ID.',
+            },
+            gpay: {
+                idType: 'UPI ID',
+                idText: 'upi@xxx',
+                infoText: 'Send money to this GPay UPI ID and enter your transaction ID.',
+            },
+            phonepe: {
+                idType: 'UPI ID',
+                idText: 'upi@xxx',
+                infoText: 'Send money to this PhonePe UPI ID and enter your transaction ID.',
+            }
+        };
+
+        const countrySelectionSection = document.getElementById('country-selection-section');
+        const countryButtonsContainer = document.getElementById('country-buttons-container');
+        const paymentSelectionSection = document.getElementById('payment-selection-section');
+        const paymentMethodTitle = document.getElementById('payment-method-title');
+        const paymentMethodContainer = document.getElementById('payment-method-container');
+        const depositFormSection = document.getElementById('deposit-form-section');
+        const depositForm = document.getElementById('deposit-form');
+        const userBalanceElement = document.getElementById('user-balance');
+        const formTitle = document.getElementById('form-title');
+        const amountInput = document.getElementById('amount');
+        const transactionIdInput = document.getElementById('transaction-id');
+        const backButton = document.getElementById('back-button');
+        const localAmountSummary = document.getElementById('local-amount-summary');
+        const summaryLocalCurrency = document.getElementById('summary-local');
+        const depositInfo = document.querySelector('.deposit-info');
+
+        const customAlert = {
+            overlay: document.getElementById('custom-alert-modal'),
+            iconContainer: document.getElementById('alert-icon-container'),
+            title: document.getElementById('alert-title'),
+            message: document.getElementById('alert-message'),
+            okButton: document.getElementById('alert-ok-button'),
+            showProcessing: function(message) {
+                this.iconContainer.innerHTML = '<i class="fas fa-spinner processing-icon"></i>';
+                this.title.textContent = 'Processing...';
+                this.message.textContent = message;
+                this.okButton.classList.add('hidden');
+                this.overlay.classList.remove('hidden');
+            },
+            showSuccess: function(message, callback) {
+                this.iconContainer.innerHTML = '<i class="fas fa-check-circle success-icon"></i>';
+                this.title.textContent = 'Success!';
+                this.message.textContent = message;
+                this.okButton.classList.remove('hidden');
+                this.okButton.onclick = () => {
+                    this.overlay.classList.add('hidden');
+                    if (callback) callback();
+                };
+            },
+            showError: function(message, callback) {
+                this.iconContainer.innerHTML = '<i class="fas fa-times-circle" style="font-size:3em; color:var(--danger-color);"></i>';
+                this.title.textContent = 'Error!';
+                this.message.textContent = message;
+                this.okButton.classList.remove('hidden');
+                this.okButton.onclick = () => {
+                    this.overlay.classList.add('hidden');
+                    if (callback) callback();
+                };
+            },
+            hide: function() {
+                this.overlay.classList.add('hidden');
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+                userData = userSnapshot.val(); // Store user data
+                loadBalance();
+                setupCountryButtons();
+                setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadBalance() {
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                userBalance = snapshot.val().balance || 0;
+                userBalanceElement.textContent = `$${userBalance.toFixed(2)}`;
+            }
+        }
+        
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        async function setupAdDisplayLogic() {
+            if (!currentUser || !userData) return;
+
+            const activePlans = userData.activePlans || {};
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Deposit page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Deposit page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Deposit page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on deposit page.");
+            }
+        }
+
+        function setupCountryButtons() {
+            try {
+                if (!countryButtonsContainer || !countryData) {
+                    console.error("Error: Country buttons container or data not found.");
+                    return;
+                }
+                countryButtonsContainer.innerHTML = '';
+                countryData.forEach(country => {
+                    const button = document.createElement('a');
+                    button.href = '#';
+                    button.classList.add('country-button');
+                    button.dataset.countryId = country.id;
+                    button.dataset.status = country.status; // Keep status for coming soon countries
+                    button.innerHTML = `
+                        <img src="${country.flag}" alt="${country.name} Flag">
+                        <span>${country.name}</span>
+                    `;
+                    countryButtonsContainer.appendChild(button);
+                });
+                document.querySelectorAll('.country-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        vibrate();
+                        const countryId = button.dataset.countryId;
+                        const status = button.dataset.status;
+                        selectedCountry = countryId;
+
+                        if (status === 'coming-soon') {
+                            customAlert.show('Not Available', 'Deposit for this region is coming soon!');
+                        } else {
+                            showPaymentMethods(countryId);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error("Error setting up country buttons:", error);
+            }
+        }
+
+        function showPaymentMethods(countryId) {
+            paymentMethodContainer.innerHTML = '';
+            const countryName = countryId.charAt(0).toUpperCase() + countryId.slice(1);
+            paymentMethodTitle.textContent = `Select Payment Method (${countryId === 'international' ? 'International' : countryName})`;
+            countrySelectionSection.classList.add('hidden');
+            paymentSelectionSection.classList.remove('hidden');
+            backButton.classList.remove('hidden');
+
+            const methods = paymentMethods[countryId];
+            if (!methods || methods.length === 0) {
+                paymentMethodContainer.innerHTML = `<div class="coming-soon-message"><p>Deposit for this region is not yet available. It's coming soon!</p></div>`;
+                return;
+            }
+
+            methods.forEach(method => {
+                const button = document.createElement('a');
+                button.href = '#';
+                button.classList.add('payment-button');
+                button.dataset.method = method.id;
+                button.dataset.fee = method.fee;
+                button.innerHTML = `
+                    <img src="${method.icon}" alt="${method.name} Icon">
+                    <span>${method.name}</span>
+                `;
+                paymentMethodContainer.appendChild(button);
+            });
+            setupPaymentMethodListeners();
+        }
+
+        function setupPaymentMethodListeners() {
+            document.querySelectorAll('.payment-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    vibrate();
+                    selectedMethod = button.dataset.method;
+                    const methodName = selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1);
+                    formTitle.textContent = `Deposit via ${methodName}`;
+                    
+                    paymentSelectionSection.classList.add('hidden');
+                    depositFormSection.classList.remove('hidden');
+
+                    displayDepositDetails();
+                    amountInput.value = '';
+                    updateSummary();
+                });
+            });
+        }
+
+        function displayDepositDetails() {
+            const details = depositDetails[selectedMethod];
+            depositInfo.innerHTML = '';
+            
+            depositInfo.innerHTML = `
+                <h3>${details.infoText}</h3>
+                <p>${details.idType}: <strong>${details.idText}</strong> <button class="copy-button" onclick="copyToClipboard('${details.idText}')"><i class="fas fa-copy"></i></button></p>
+            `;
+            
+            const methodFee = paymentMethods[selectedCountry]?.find(m => m.id === selectedMethod)?.fee || 0;
+            // Fee is just informational for now, not integrated into amount calculations.
+            // const feeText = methodFee > 0 ? ` (+ $${methodFee.toFixed(2)} Fee)` : '';
+
+            document.getElementById('transaction-label').textContent = "Transaction ID / Hash";
+            transactionIdInput.placeholder = "Your transaction reference";
+
+            if (selectedCountry === 'international') {
+                localAmountSummary.classList.add('hidden');
+            } else {
+                localAmountSummary.classList.remove('hidden');
+            }
+        }
+        
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                customAlert.showSuccess('Copied!', 'The text has been copied to your clipboard.');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                customAlert.showError('Error', 'Failed to copy text.');
+            });
+        };
+        
+        amountInput.addEventListener('input', updateSummary);
+        
+        function updateSummary() {
+            const amount = parseFloat(amountInput.value) || 0;
+            let convertedCurrency = 0;
+            let currencySymbol = '';
+
+            if (selectedCountry === 'bangladesh') {
+                convertedCurrency = amount * bdtExchangeRate;
+                currencySymbol = '৳';
+            } else if (selectedCountry === 'india') {
+                convertedCurrency = amount * inrExchangeRate;
+                currencySymbol = '₹';
+            }
+            
+            summaryLocalCurrency.textContent = `${currencySymbol}${convertedCurrency.toFixed(2)}`;
+        }
+
+        backButton.addEventListener('click', () => {
+            vibrate();
+            if (!depositFormSection.classList.contains('hidden')) {
+                depositFormSection.classList.add('hidden');
+                paymentSelectionSection.classList.remove('hidden');
+            } else if (!paymentSelectionSection.classList.contains('hidden')) {
+                paymentSelectionSection.classList.add('hidden');
+                countrySelectionSection.classList.remove('hidden');
+                backButton.classList.add('hidden');
+            }
+            amountInput.value = '';
+        });
+
+        depositForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            vibrate();
+
+            const amount = parseFloat(amountInput.value);
+            const transactionId = transactionIdInput.value;
+
+            if (isNaN(amount) || amount < minimumDeposit) {
+                customAlert.showError(`Minimum deposit amount is $${minimumDeposit.toFixed(2)}.`);
+                return;
+            }
+
+            if (!transactionId.trim()) {
+                customAlert.showError('Please enter a transaction ID or hash.');
+                return;
+            }
+            
+            customAlert.showProcessing('Submitting your request...');
+            
+            try {
+                const depositRef = push(ref(db, `depositRequests/${currentUser.uid}`)); // Use push for unique ID
+                await set(depositRef, { // Use set to write to the generated key
+                    userId: currentUser.uid,
+                    country: selectedCountry,
+                    method: selectedMethod,
+                    amount: amount,
+                    transactionId: transactionId,
+                    status: 'pending',
+                    timestamp: serverTimestamp()
+                });
+
+                customAlert.showSuccess('Deposit request submitted successfully! It will be approved after verification.', () => {
+                    window.location.href = 'history.html';
+                });
+
+            } catch (error) {
+                console.error("Error submitting deposit:", error);
+                customAlert.showError('Failed to submit deposit request. Please check your network and try again.');
+            }
+        });
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', vibrate);
+        });
+    </script>
+</body>
+</html>

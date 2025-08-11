@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #fbc02d, #ff8f00);
+            color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .balance-card h3 {
+            margin: 0 0 5px;
+            color: #ffeb3b;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .balance-card .balance-amount {
+            font-size: 2.8em;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .selection-section {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .selection-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        .country-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-background);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .country-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .country-button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+        .country-button span {
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .payment-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-background);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .payment-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .payment-button img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+        .payment-button span {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .coming-soon-message {
+            text-align: center;
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 10px;
+            color: #1565c0;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        /* Withdrawal Form */
+        .withdrawal-form-section {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+        .withdrawal-form-section h2 {
+            margin: 0 0 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+        }
+        .withdrawal-form .form-group {
+            margin-bottom: 15px;
+        }
+        .withdrawal-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .withdrawal-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .withdrawal-form .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #f44336, #e53935);
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+        .withdrawal-form .submit-button:hover {
+            background: linear-gradient(45deg, #e53935, #c62828);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .withdrawal-summary {
+            background-color: #fff3e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .withdrawal-summary p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .withdrawal-summary p strong {
+            color: var(--danger-color);
+        }
+        .warning-message {
+            text-align: center;
+            padding: 15px;
+            background-color: #ffcdd2;
+            color: #c62828;
+            border-radius: 10px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+
+        /* Custom Alert Modal */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .custom-alert-box {
+            background: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .custom-alert-box h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: var(--primary-color);
+        }
+        .custom-alert-box p {
+            margin: 15px 0;
+            color: var(--text-color);
+        }
+        .custom-alert-box button {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .custom-alert-box button:hover {
+            background: #e64a19;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <div class="header">
+            <a id="back-button" class="close-button hidden">&times;</a>
+            <h1>Withdrawal</h1>
+        </div>
+
+        <div class="balance-card">
+            <h3>Your Balance</h3>
+            <div class="balance-amount" id="user-balance">$0.00</div>
+        </div>
+
+        <div id="country-selection-section" class="selection-section">
+            <h2>Select Your Region</h2>
+            <div id="country-buttons-container" class="country-grid">
+                </div>
+        </div>
+
+        <div id="payment-selection-section" class="selection-section hidden">
+            <h2 id="payment-method-title">Select Payment Method</h2>
+            <div id="payment-method-container" class="payment-grid">
+                </div>
+            <div id="coming-soon-message" class="coming-soon-message hidden">
+                <p>Withdrawal for this region is not yet available. It's coming soon!</p>
+            </div>
+        </div>
+
+        <div id="withdrawal-form-section" class="withdrawal-form-section hidden">
+            <h2 id="form-title">Withdraw via Method</h2>
+            <form id="withdrawal-form" class="withdrawal-form">
+                <div class="form-group">
+                    <label for="amount">Withdrawal Amount ($)</label>
+                    <input type="number" id="amount" placeholder="Enter amount in USD" step="1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label id="account-label" for="account-id">Account Number</label>
+                    <input type="text" id="account-id" placeholder="Enter your account number" required>
+                </div>
+
+                <div class="withdrawal-summary">
+                    <p>Withdrawal Amount: <strong id="summary-usd">$0.00</strong></p>
+                    <p id="summary-local-p">Amount to Receive: <strong id="summary-local">৳0.00</strong></p>
+                </div>
+                <p id="minimum-withdrawal-warning" class="warning-message hidden">
+                    Minimum withdrawal is $<span id="min-withdraw-amount">0</span>.
+                </p>
+                
+                <button type="submit" class="submit-button">Confirm Withdrawal</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="custom-alert-overlay hidden">
+        <div class="custom-alert-box">
+            <h3 id="alert-title"></h3>
+            <p id="alert-message"></p>
+            <button id="alert-ok-button">OK</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, push, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let userBalance = 0;
+        let selectedMethod = '';
+        let selectedCountry = '';
+        const bdtExchangeRate = 110.00;
+        const inrExchangeRate = 83.00;
+        
+        // Fixed minimum withdrawal amount as per request
+        const MIN_WITHDRAWAL_FIXED = 5; 
+        
+        const countryData = [
+            { id: 'bangladesh', name: 'Bangladesh', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/bd.svg', status: 'available' },
+            { id: 'india', name: 'India', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/in.svg', status: 'available' },
+            { id: 'international', name: 'International', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/us.svg', status: 'available' },
+            { id: 'coming-soon-nepal', name: 'Nepal', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/np.svg', status: 'coming-soon' },
+            { id: 'coming-soon-malaysia', name: 'Malaysia', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/my.svg', status: 'coming-soon' },
+            { id: 'coming-soon-australia', name: 'Australia', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/au.svg', status: 'coming-soon' },
+            { id: 'coming-soon-singapore', name: 'Singapore', flag: 'https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/sg.svg', status: 'coming-soon' }
+        ];
+        
+        const paymentMethods = {
+            international: [
+                { id: 'usdt', name: 'USDT (TRC20)', icon: 'https://via.placeholder.com/50/26A69A/FFFFFF?text=USDT' },
+                { id: 'payeer', name: 'Payeer', icon: 'https://via.placeholder.com/50/FF5722/FFFFFF?text=PY' },
+            ],
+            bangladesh: [
+                { id: 'bkash', name: 'bKash', icon: 'https://via.placeholder.com/50/E2136E/FFFFFF?text=BK' },
+                { id: 'nagad', name: 'Nagad', icon: 'https://via.placeholder.com/50/FF6400/FFFFFF?text=NGD' },
+                { id: 'rocket', name: 'Rocket', icon: 'https://via.placeholder.com/50/8D238B/FFFFFF?text=RCK' },
+            ],
+            india: [
+                { id: 'paytm', name: 'Paytm', icon: 'https://via.placeholder.com/50/00B9F1/FFFFFF?text=PTM' },
+                { id: 'gpay', name: 'GPay', icon: 'https://via.placeholder.com/50/4285F4/FFFFFF?text=GPY' },
+                { id: 'phonepe', name: 'PhonePe', icon: 'https://via.placeholder.com/50/5F259F/FFFFFF?text=PHP' },
+            ],
+        };
+
+        const accountLabels = {
+            usdt: 'USDT Wallet Address (TRC20)',
+            payeer: 'Payeer Account ID',
+            bkash: 'bKash Account Number',
+            nagad: 'Nagad Account Number',
+            rocket: 'Rocket Account Number',
+            paytm: 'Paytm Number',
+            gpay: 'GPay UPI ID',
+            phonepe: 'PhonePe UPI ID'
+        };
+
+        const countrySelectionSection = document.getElementById('country-selection-section');
+        const countryButtonsContainer = document.getElementById('country-buttons-container');
+        const paymentSelectionSection = document.getElementById('payment-selection-section');
+        const paymentMethodTitle = document.getElementById('payment-method-title');
+        const paymentMethodContainer = document.getElementById('payment-method-container');
+        const withdrawalFormSection = document.getElementById('withdrawal-form-section');
+        const withdrawalForm = document.getElementById('withdrawal-form');
+        const userBalanceElement = document.getElementById('user-balance');
+        const formTitle = document.getElementById('form-title');
+        const amountInput = document.getElementById('amount');
+        const accountIdInput = document.getElementById('account-id');
+        const accountLabel = document.getElementById('account-label');
+        const backButton = document.getElementById('back-button');
+        const comingSoonMessage = document.getElementById('coming-soon-message');
+        const summaryUSD = document.getElementById('summary-usd');
+        const summaryLocal = document.getElementById('summary-local');
+        const summaryLocalP = document.getElementById('summary-local-p');
+        const minWithdrawalWarning = document.getElementById('minimum-withdrawal-warning');
+        const minWithdrawalAmountSpan = document.getElementById('min-withdraw-amount');
+
+        const customAlert = {
+            overlay: document.getElementById('custom-alert-modal'),
+            title: document.getElementById('alert-title'),
+            message: document.getElementById('alert-message'),
+            okButton: document.getElementById('alert-ok-button'),
+            show: function(title, message, callback) {
+                this.title.textContent = title;
+                this.message.textContent = message;
+                this.overlay.classList.remove('hidden');
+                this.okButton.onclick = () => {
+                    this.overlay.classList.add('hidden');
+                    if (callback) callback();
+                };
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadBalance();
+                setupCountryButtons();
+                setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function loadBalance() {
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                userBalance = snapshot.val().balance || 0;
+                userBalanceElement.textContent = `$${userBalance.toFixed(2)}`;
+            }
+        }
+        
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        async function setupAdDisplayLogic() {
+            if (!currentUser) return; // Ensure currentUser is available
+
+            const userRef = ref(db, 'users/' + currentUser.uid);
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val() || {};
+            const activePlans = userData.activePlans || {};
+
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Withdrawal page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Withdrawal page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Withdrawal page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on withdrawal page.");
+            }
+        }
+
+        function setupCountryButtons() {
+            try {
+                if (!countryButtonsContainer || !countryData) {
+                    console.error("Error: Country buttons container or data not found.");
+                    return;
+                }
+                countryButtonsContainer.innerHTML = '';
+                countryData.forEach(country => {
+                    const button = document.createElement('a');
+                    button.href = '#';
+                    button.classList.add('country-button');
+                    button.dataset.countryId = country.id;
+                    button.dataset.status = country.status;
+                    button.innerHTML = `
+                        <img src="${country.flag}" alt="${country.name} Flag">
+                        <span>${country.name}</span>
+                    `;
+                    countryButtonsContainer.appendChild(button);
+                });
+                document.querySelectorAll('.country-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        vibrate();
+                        const countryId = button.dataset.countryId;
+                        const status = button.dataset.status;
+                        selectedCountry = countryId;
+
+                        if (status === 'coming-soon') {
+                            customAlert.show('Not Available', 'Withdrawal for this region is coming soon!');
+                        } else {
+                            showPaymentMethods(countryId);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error("Error setting up country buttons:", error);
+            }
+        }
+
+        function showPaymentMethods(countryId) {
+            paymentMethodContainer.innerHTML = '';
+            paymentMethodTitle.textContent = `Select Payment Method (${countryId.charAt(0).toUpperCase() + countryId.slice(1)})`;
+            countrySelectionSection.classList.add('hidden');
+            paymentSelectionSection.classList.remove('hidden');
+            backButton.classList.remove('hidden');
+
+            const methods = paymentMethods[countryId];
+            if (!methods || methods.length === 0) {
+                comingSoonMessage.classList.remove('hidden');
+                paymentMethodContainer.classList.add('hidden');
+                return;
+            }
+            comingSoonMessage.classList.add('hidden');
+            paymentMethodContainer.classList.remove('hidden');
+            
+            methods.forEach(method => {
+                const button = document.createElement('a');
+                button.href = '#';
+                button.classList.add('payment-button');
+                button.dataset.method = method.id;
+                button.innerHTML = `
+                    <img src="${method.icon}" alt="${method.name} Icon">
+                    <span>${method.name}</span>
+                `;
+                paymentMethodContainer.appendChild(button);
+            });
+            setupPaymentMethodListeners();
+        }
+
+        function setupPaymentMethodListeners() {
+            document.querySelectorAll('.payment-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    vibrate();
+                    selectedMethod = button.dataset.method;
+                    formTitle.textContent = `Withdraw via ${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)}`;
+
+                    paymentSelectionSection.classList.add('hidden');
+                    withdrawalFormSection.classList.remove('hidden');
+
+                    accountLabel.textContent = accountLabels[selectedMethod];
+                    accountIdInput.placeholder = `Enter your ${accountLabels[selectedMethod]}`;
+                    
+                    // Display the fixed minimum withdrawal amount
+                    minWithdrawalAmountSpan.textContent = MIN_WITHDRAWAL_FIXED.toFixed(2);
+                    
+                    amountInput.value = '';
+                    accountIdInput.value = '';
+                    updateSummary();
+                });
+            });
+        }
+        
+        amountInput.addEventListener('input', updateSummary);
+
+        function updateSummary() {
+            const amount = parseFloat(amountInput.value) || 0;
+            summaryUSD.textContent = `$${amount.toFixed(2)}`;
+
+            if (selectedCountry === 'international') {
+                summaryLocalP.classList.add('hidden');
+            } else {
+                summaryLocalP.classList.remove('hidden');
+                let convertedAmount = 0;
+                let currencySymbol = '';
+                if (selectedCountry === 'bangladesh') {
+                    convertedAmount = amount * bdtExchangeRate;
+                    currencySymbol = '৳';
+                } else if (selectedCountry === 'india') {
+                    convertedAmount = amount * inrExchangeRate;
+                    currencySymbol = '₹';
+                }
+                summaryLocal.textContent = `${currencySymbol}${convertedAmount.toFixed(2)}`;
+            }
+
+            // Validate against the fixed minimum withdrawal amount
+            if (amount < MIN_WITHDRAWAL_FIXED) {
+                minWithdrawalWarning.classList.remove('hidden');
+            } else {
+                minWithdrawalWarning.classList.add('hidden');
+            }
+        }
+        
+        backButton.addEventListener('click', () => {
+            vibrate();
+            if (!withdrawalFormSection.classList.contains('hidden')) {
+                withdrawalFormSection.classList.add('hidden');
+                paymentSelectionSection.classList.remove('hidden');
+            } else if (!paymentSelectionSection.classList.contains('hidden')) {
+                paymentSelectionSection.classList.add('hidden');
+                countrySelectionSection.classList.remove('hidden');
+                backButton.classList.add('hidden');
+            }
+            amountInput.value = '';
+            accountIdInput.value = '';
+        });
+
+        withdrawalForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            vibrate();
+
+            const amount = parseFloat(amountInput.value);
+            const accountId = accountIdInput.value;
+            
+            // Validate against the fixed minimum withdrawal amount
+            if (amount < MIN_WITHDRAWAL_FIXED) {
+                customAlert.show('Error', `Minimum withdrawal is $${MIN_WITHDRAWAL_FIXED.toFixed(2)}.`);
+                return;
+            }
+
+            if (amount > userBalance) {
+                customAlert.show('Error', 'Insufficient balance.');
+                return;
+            }
+
+            if (!accountId.trim()) {
+                customAlert.show('Error', 'Please enter your account number/ID.');
+                return;
+            }
+            
+            // Show a temporary "Processing" message while submitting
+            customAlert.show('Processing...', 'Your request is being submitted. Please wait.');
+
+            try {
+                const userWithdrawalRef = push(ref(db, `withdrawalRequests/${currentUser.uid}`)); // Use push for unique ID
+                await set(userWithdrawalRef, { // Use set instead of push to specify key directly if needed, but push is fine here
+                    userId: currentUser.uid,
+                    country: selectedCountry,
+                    method: selectedMethod,
+                    amount: amount,
+                    accountId: accountId,
+                    status: 'pending',
+                    timestamp: serverTimestamp()
+                });
+
+                const newBalance = userBalance - amount;
+                await update(ref(db, `users/${currentUser.uid}`), { balance: newBalance });
+
+                userBalance = newBalance;
+                userBalanceElement.textContent = `$${userBalance.toFixed(2)}`;
+
+                customAlert.show('Success', 'Withdrawal request submitted successfully!', () => {
+                    window.location.href = 'history.html';
+                });
+
+            } catch (error) {
+                console.error("Error submitting withdrawal:", error);
+                customAlert.show('Error', 'Failed to submit withdrawal request. Please check your network and try again.');
+            }
+        });
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', vibrate);
+        });
+    </script>
+</body>
+</html>

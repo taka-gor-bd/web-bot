@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App - Home</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --accent-color: #ff9800;
+            --balance-bg: linear-gradient(135deg, #007bff, #00c6ff);
+            --background-color: #f0f8ff;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* পরিবর্তন: সকল লিংকের আন্ডারলাইন সরানো হলো */
+        a {
+            text-decoration: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 18px;
+            border: 3px solid var(--secondary-color);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+            background-color: var(--secondary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: 600;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .welcome-text {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin: 0;
+            margin-right: 8px;
+        }
+        
+        .bluetick {
+            color: #1DA1F2;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+
+        .greeting-text {
+            font-size: 0.9em;
+            color: var(--light-text);
+            margin: 0;
+        }
+
+        .balance-card {
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            background: var(--balance-bg);
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .balance-label {
+            font-size: 1em;
+            margin: 0 0 5px 0;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 5px 0 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            flex: 1;
+            max-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .btn i { margin-right: 8px; }
+        .btn-deposit {
+            background-color: #28a745;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        }
+        .btn-withdraw {
+            background-color: #dc3545;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .section {
+            background-color: var(--card-background);
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .buy-plan-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            margin-top: 25px;
+            cursor: pointer;
+        }
+
+        .buy-plan-content h3 { font-size: 1.3em; font-weight: 600; margin: 0; }
+        .buy-plan-content p { font-size: 0.95em; margin: 0; }
+        .buy-plan-icon i { font-size: 3em; color: #fff; }
+        
+        .daily-tasks-section h2 {
+            margin-top: 0;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .task-card {
+            background-color: var(--card-background);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+        }
+        
+        .task-icon-box {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid; /* Added for visual distinction */
+        }
+        .task-icon-box.spin { border-color: #ff9800; background-color: #fff3e0; }
+        .task-icon-box.scratch { border-color: #f44336; background-color: #e3f2fd; }
+        .task-icon-box.watch-ad { border-color: #4caf50; background-color: #e8f5e9; }
+        .task-icon-box.plan-income { border-color: #2196f3; background-color: #fce4ec; }
+
+        .task-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .task-title {
+            margin: 0;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .telegram-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #0088cc, #00bfff);
+            color: #fff;
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        .telegram-content { display: flex; align-items: center; gap: 10px; }
+        .telegram-icon i { font-size: 2.2em; }
+        .telegram-info h3 { margin: 0; font-size: 1.1em; }
+        .telegram-info p { margin: 0; font-size: 0.85em; }
+        .telegram-join-btn {
+            background-color: #fff;
+            color: #0088cc;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000;
+            height: 60px;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--light-text);
+            font-size: 0.85em;
+        }
+        
+        .nav-item i { font-size: 1.5em; margin-bottom: 5px; }
+        .nav-item.active { color: var(--primary-color); }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+            width: 80%;
+            max-width: 350px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-content h3 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.5em; }
+        .modal-content p { margin-bottom: 20px; color: var(--light-text); }
+        .modal-buttons { display: flex; justify-content: space-around; gap: 10px; }
+        .modal-buttons .btn, .modal-buttons a.btn { /* পরিবর্তন: লিংকের জন্যও স্টাইল যুক্ত করা হয়েছে */
+            width: auto;
+            padding: 12px 20px;
+            font-size: 1em;
+            flex: 1;
+        }
+        .modal-buttons .btn-primary { background-color: var(--secondary-color); }
+        .modal-buttons .btn-secondary { background-color: #9e9e9e; }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <div class="container">
+        <header class="header">
+            <div class="profile">
+                <div id="profile-img" class="profile-img"></div>
+                <div>
+                    <div class="user-info">
+                        <h2 class="welcome-text" id="usernameDisplay">Loading...</h2>
+                        <i id="premium-bluetick" class="fas fa-check-circle bluetick hidden"></i>
+                    </div>
+                    <p class="greeting-text">Welcome back!</p>
+                </div>
+            </div>
+            <div class="balance-card" id="balance-card">
+                <p class="balance-label">Total Balance</p>
+                <h1 class="balance-amount" id="balanceAmount">$ 0.00</h1>
+                <div class="balance-buttons">
+                    <a href="diposit.html" class="btn btn-deposit"><i class="fas fa-coins"></i> Deposit</a>
+                    <a href="withdraw.html" class="btn btn-withdraw"><i class="fas fa-exchange-alt"></i> Withdraw</a>
+                </div>
+            </div>
+        </header>
+
+        <a href="plans.html" class="buy-plan-section">
+            <div class="buy-plan-content">
+                <h3>Buy a Plan</h3>
+                <p>Increase your earnings</p>
+            </div>
+            <div class="buy-plan-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+        </a>
+
+        <section class="section daily-tasks-section">
+            <h2>Daily Tasks</h2>
+            <div class="task-grid">
+                <div class="task-card" onclick="handleTaskClick('Spin Wheel')">
+                    <div class="task-icon-box spin">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2.5em; color: #ff9800;"></i>
+                    </div>
+                    <p class="task-title">Spin Wheel</p>
+                </div>
+                <div class="task-card" onclick="handleTaskClick('Scratch Card')">
+                    <div class="task-icon-box scratch">
+                        <i class="fas fa-hand-pointer" style="font-size: 2.5em; color: #f44336;"></i>
+                    </div>
+                    <p class="task-title">Scratch Card</p>
+                </div>
+                <div class="task-card" onclick="handleTaskClick('Watch Ad')">
+                    <div class="task-icon-box watch-ad">
+                        <i class="fas fa-video" style="font-size: 2.5em; color: #4caf50;"></i>
+                    </div>
+                    <p class="task-title">Watch Ad</p>
+                </div>
+                <div class="task-card" onclick="handleTaskClick('Plan Income')">
+                    <div class="task-icon-box plan-income">
+                        <i class="fas fa-chart-line" style="font-size: 2.5em; color: #2196f3;"></i>
+                    </div>
+                    <p class="task-title">Plan Income</p>
+                </div>
+            </div>
+        </section>
+        
+        <a href="https://t.me/Earning_with_Nahid" target="_blank" class="telegram-section">
+            <div class="telegram-content">
+                <div class="telegram-icon"><i class="fab fa-telegram-plane"></i></div>
+                <div class="telegram-info">
+                    <h3>Join Our Telegram</h3>
+                    <p>Get latest updates and news!</p>
+                </div>
+            </div>
+            <span class="telegram-join-btn">Join Now</span>
+        </a>
+
+    </div>
+
+    <!-- Modals -->
+    <div id="dailyBonusModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Daily Bonus Available!</h3>
+            <p>Claim your free bonus of $0.01 now.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="claimDailyBtn">Claim</button>
+                <button class="btn btn-secondary" id="closeDailyBonusModal">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="premiumModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Get a FREE Premium Plan!</h3>
+            <p>Enjoy extra benefits and unlock exclusive tasks. Claim your plan for free now!</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="claimPremiumBtn">Claim Now</button>
+                <button class="btn btn-secondary" id="closePremiumModal">No, Thanks</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="balanceDetailsModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 style="color: var(--secondary-color);">Your Total Balance</h3>
+            <p style="font-size: 2em; font-weight: bold;" id="fullBalanceAmount">$ 0.00</p>
+            <button class="btn btn-secondary" id="closeBalanceDetailsModal" style="margin-top: 15px;">Close</button>
+        </div>
+    </div>
+
+    <div id="notPremiumModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Premium Feature</h3>
+            <p>You need a premium plan to access this feature. Upgrade now to start earning!</p>
+            <div class="modal-buttons">
+                <a href="plans.html" class="btn btn-primary">View Plans</a>
+                <button class="btn btn-secondary" id="closeNotPremiumModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="tasks.html" class="nav-item" id="tasks-nav-link"><i class="fas fa-list-alt"></i><span>Tasks</span></a>
+        <a href="plans.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Plans</span></a>
+        <a href="history.html" class="nav-item"><i class="fas fa-history"></i><span>History</span></a>
+        <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get, update, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let userId = null;
+        let userData = null;
+
+        // Modal Elements
+        const dailyBonusModal = document.getElementById('dailyBonusModal');
+        const premiumModal = document.getElementById('premiumModal');
+        const balanceDetailsModal = document.getElementById('balanceDetailsModal');
+        const notPremiumModal = document.getElementById('notPremiumModal');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                loadUserData();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function formatBalance(balance) {
+            if (balance >= 1e6) return `$${(balance / 1e6).toFixed(2)}M`;
+            if (balance >= 1e3) return `$${(balance / 1e3).toFixed(2)}K`;
+            return `$${balance.toFixed(2)}`;
+        }
+
+        async function loadUserData() {
+            if (!userId) return;
+            
+            const userRef = ref(db, 'users/' + userId);
+            const userSnapshot = await get(userRef);
+
+            if (userSnapshot.exists()) {
+                userData = userSnapshot.val();
+                
+                document.getElementById('usernameDisplay').textContent = userData.username || "Guest";
+                
+                const profileImg = document.getElementById('profile-img');
+                if(userData.avatar) {
+                    profileImg.style.backgroundImage = `url('${userData.avatar}')`;
+                    profileImg.textContent = '';
+                } else {
+                    profileImg.style.backgroundImage = 'none';
+                    profileImg.textContent = userData.username ? userData.username.charAt(0).toUpperCase() : 'G';
+                }
+
+                document.getElementById('balanceAmount').textContent = formatBalance(userData.balance || 0);
+                document.getElementById('fullBalanceAmount').textContent = `$${(userData.balance || 0).toFixed(2)}`;
+
+                // Determine premium status for blue tick based on current plan if any paid plan is active
+                const activePlans = userData.activePlans || {};
+                // Check if any active plan (paid or free premium) is present
+                const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+                // Check for a *paid* premium plan specifically to control ad display logic
+                const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+                const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+
+                if (hasActivePlan) { 
+                    document.getElementById('premium-bluetick').classList.remove('hidden');
+                } else {
+                    document.getElementById('premium-bluetick').classList.add('hidden');
+                }
+
+                dailyBonusModal.classList.add('hidden'); // Daily Bonus modal is removed from Home logic
+
+                if (!userData.claimedFreePremium && !hasActivePlan) { // Only show free premium offer if no plan is active
+                    premiumModal.classList.remove('hidden');
+                }
+
+                // Ad Display Logic based on user's plan using inApp interstitial
+                if (typeof show_9696042 === 'function') {
+                    if (hasActivePaidPlan) {
+                        // Paid Premium User (VIP Plans): No automatic ads
+                        console.log("Paid Premium User: No automatic in-app ads.");
+                        show_9696042({
+                            type: 'inApp',
+                            inAppSettings: {
+                                frequency: 0, // Show 0 ads
+                                capping: 0.1, 
+                                interval: 30,
+                                timeout: 5,
+                                everyPage: false
+                            }
+                        });
+                    } else if (hasActiveFreePlan) {
+                        // Free Premium User: Ads less frequently (e.g., every 5 minutes)
+                        console.log("Free Premium User: In-app ads every 5 minutes.");
+                        show_9696042({
+                            type: 'inApp',
+                            inAppSettings: {
+                                frequency: 1, // Show 1 ad
+                                capping: 0.1, // within 6 minutes
+                                interval: 300, // 5 minutes interval
+                                timeout: 5,
+                                everyPage: false
+                            }
+                        });
+                    } else {
+                        // Normal User (no active plan or expired free plan): Ads more frequently (e.g., every 2 minutes)
+                        console.log("Normal User: In-app ads every 2 minutes.");
+                        show_9696042({
+                            type: 'inApp',
+                            inAppSettings: {
+                                frequency: 2, // Show 2 ads
+                                capping: 0.1, // within 6 minutes
+                                interval: 120, // 2 minutes interval
+                                timeout: 5,
+                                everyPage: false
+                            }
+                        });
+                    }
+                } else {
+                    console.warn("Ad SDK function show_9696042 not found. Ensure the SDK script is loaded.");
+                }
+
+            } else {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Daily Bonus (still in modals but not triggered by explicit button on Home UI now)
+        document.getElementById('claimDailyBtn').addEventListener('click', async () => {
+            const claimBtn = document.getElementById('claimDailyBtn');
+            claimBtn.innerHTML = '<span class="spinner"></span>';
+            claimBtn.disabled = true;
+
+            const userRef = ref(db, 'users/' + userId);
+            const newBalance = (userData.balance || 0) + 0.01;
+            const today = new Date().toISOString().slice(0, 10);
+            
+            try {
+                await update(userRef, { balance: newBalance, lastClaimDate: today });
+                const historyRef = push(ref(db, `users/${userId}/incomeHistory`)); // Use push for unique IDs
+                await set(historyRef, { taskName: 'Daily Bonus', amount: 0.01, timestamp: serverTimestamp() });
+                
+                userData.balance = newBalance;
+                userData.lastClaimDate = today;
+                
+                document.getElementById('balanceAmount').textContent = formatBalance(newBalance);
+                document.getElementById('fullBalanceAmount').textContent = `$${newBalance.toFixed(2)}`;
+                dailyBonusModal.classList.add('hidden');
+                alert('Daily bonus claimed successfully!'); // Provide user feedback
+            } catch (error) {
+                console.error("Failed to claim daily bonus: ", error);
+                alert("Failed to claim daily bonus. Please try again.");
+            } finally {
+                claimBtn.innerHTML = 'Claim';
+                claimBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('claimPremiumBtn').addEventListener('click', async () => {
+            const claimBtn = document.getElementById('claimPremiumBtn');
+            claimBtn.innerHTML = '<span class="spinner"></span>';
+            claimBtn.disabled = true;
+
+            const userRef = ref(db, 'users/' + userId);
+            try {
+                // To set the 'Free Plan' as the user's active plan upon claiming free premium
+                const freePlanDetails = {
+                    id: 'free-plan', 
+                    name: 'Free Plan', 
+                    price: 0, 
+                    dailyIncome: 0.20, 
+                    durationDays: 5, 
+                    totalTasks: 5, 
+                    features: ['Daily Tasks', 'Basic Support'],
+                    purchaseDate: Date.now(),
+                    expirationDate: Date.now() + (5 * 24 * 60 * 60 * 1000), // 5 days from now
+                    completedTasks: 0,
+                    status: 'active'
+                };
+
+                await update(userRef, { 
+                    premiumStatus: true, // This flag can indicate ANY premium (free or paid)
+                    claimedFreePremium: true,
+                    [`activePlans/${freePlanDetails.purchaseDate}`]: freePlanDetails // Set free plan as active
+                });
+                
+                const premiumRequestRef = push(ref(db, `premiumRequests/${userId}`));
+                await set(premiumRequestRef, {
+                    userId: userId,
+                    plan: 'Free Premium Plan',
+                    amount: 0,
+                    status: 'completed', 
+                    timestamp: serverTimestamp()
+                });
+
+                userData.premiumStatus = true;
+                userData.claimedFreePremium = true;
+                userData.activePlans = userData.activePlans || {};
+                userData.activePlans[freePlanDetails.purchaseDate] = freePlanDetails;
+
+                document.getElementById('premium-bluetick').classList.remove('hidden');
+                premiumModal.classList.add('hidden');
+                alert('Congratulations! Your FREE premium plan is now active!');
+                
+                // Re-evaluate ad display logic immediately after plan change
+                loadUserData(); // Re-calls loadUserData to re-setup ad interval
+
+            } catch (error) {
+                console.error("Failed to claim premium plan: ", error);
+                alert("Failed to claim premium plan. Please try again.");
+            } finally {
+                claimBtn.innerHTML = 'Claim Now';
+                claimBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('closeDailyBonusModal').addEventListener('click', () => dailyBonusModal.classList.add('hidden'));
+        document.getElementById('closePremiumModal').addEventListener('click', () => premiumModal.classList.add('hidden'));
+        document.getElementById('balance-card').addEventListener('click', () => balanceDetailsModal.classList.remove('hidden'));
+        document.getElementById('closeBalanceDetailsModal').addEventListener('click', () => balanceDetailsModal.classList.add('hidden'));
+        document.getElementById('closeNotPremiumModal').addEventListener('click', () => notPremiumModal.classList.add('hidden'));
+
+        window.handleTaskClick = (taskName) => {
+            if (taskName === 'Watch Ad') {
+                window.location.href = 'watchad.html';
+            } else {
+                // Other tasks (Spin Wheel, Scratch Card, Plan Income) require premium access based on an active plan
+                const activePlans = userData.activePlans || {};
+                const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+
+                if (hasActivePlan) { // Check for ANY active plan, including free-plan
+                    if (taskName === 'Spin Wheel') {
+                        window.location.href = 'spin.html';
+                    } else if (taskName === 'Scratch Card') {
+                        window.location.href = 'Card.html';
+                    } else if (taskName === 'Plan Income') {
+                        window.location.href = 'plans.html'; // Users go to plans to see income details or tasks if applicable
+                    } else {
+                        window.location.href = 'tasks.html'; // Fallback to generic tasks page if any specific premium task is defined there
+                    }
+                } else {
+                    notPremiumModal.classList.remove('hidden');
+                }
+            }
+        };
+
+        document.getElementById('tasks-nav-link').addEventListener('click', (e) => {
+            const activePlans = userData.activePlans || {};
+            const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
+            if (!hasActivePlan) {
+                e.preventDefault();
+                notPremiumModal.classList.remove('hidden');
+            } else {
+                // If there's an active free plan, redirect to free.plan.html, otherwise to tasks.html
+                const freePlanActive = Object.values(activePlans).some(plan => plan.id === 'free-plan' && plan.status === 'active');
+                if (freePlanActive) {
+                     e.preventDefault(); // Prevent default if we are redirecting
+                     window.location.href = 'free.plan.html';
+                }
+            }
+        });
+
+        // Ensure vibration on all interactive elements
+        document.querySelectorAll('.btn, .nav-item, .task-card, .buy-plan-section, .telegram-section').forEach(element => {
+            element.addEventListener('click', () => {
+                if ("vibrate" in navigator) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

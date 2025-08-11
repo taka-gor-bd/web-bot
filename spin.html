@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spin & Win (Coming Soon)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --secondary-color: #4caf50;
+            --background-color: #f0f8ff; /* Light blue background */
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --light-text: #757575;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-color); /* Use app's background color */
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            position: relative; /* For z-indexing children */
+        }
+        
+        /* Full-screen processing background overlay (now a grid) */
+        .processing-bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Dark overlay over original background */
+            z-index: 1; /* Below main content, above body */
+            overflow: hidden;
+            font-family: 'monospace';
+            display: grid; /* Use grid for block-like animation */
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Responsive grid columns */
+            grid-auto-rows: minmax(80px, 1fr); /* Responsive grid rows */
+            gap: 2px; /* Small gap between blocks */
+        }
+
+        .processing-block {
+            background-color: rgba(0, 0, 0, 0.5); /* Slightly transparent blocks */
+            color: #0f0; /* Classic green hacker text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7em;
+            word-break: break-all; /* Ensure text breaks within block */
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+            opacity: 0.8;
+            transition: opacity 0.1s ease-in-out; /* Smooth fade for updates */
+        }
+
+        .header-section {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10; /* Above background animation */
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 50%;
+            left: 20px; /* Aligned to the left */
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-color); /* Adjust color if needed */
+            cursor: pointer;
+            padding: 5px;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .container {
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            padding-bottom: 80px; /* Space for bottom nav */
+            position: relative; /* To allow z-index to work */
+            z-index: 10; /* Above processing background */
+        }
+
+        .coming-soon-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque background */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 400px;
+            position: relative; /* To keep it above its own background */
+            z-index: 20; /* Higher than processing-bg-overlay */
+        }
+
+        .coming-soon-section h2 {
+            margin: 0 0 20px;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .coming-soon-section p {
+            font-size: 1.1em;
+            color: var(--light-text);
+            margin-bottom: 15px;
+        }
+
+        .processing-display {
+            font-family: 'monospace';
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .loading-bar-container {
+            width: 80%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            animation: fillBar 2s infinite linear;
+        }
+
+        @keyframes fillBar {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+            padding: 10px 0;
+            z-index: 1000; /* Must be on top of everything */
+            height: 60px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--light-text);
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item i {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            color: var(--secondary-color);
+        }
+        
+        .nav-item:hover i {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Ad SDK Integration -->
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+
+    <!-- Full Screen Processing Overlay (background effect) -->
+    <div id="full-screen-processing-bg" class="processing-bg-overlay">
+        <!-- Dynamic blocks will be generated here by JavaScript -->
+    </div>
+
+    <div class="header-section">
+        <a href="home.html" class="back-button">&times;</a>
+    </div>
+
+    <div class="container">
+        <div class="coming-soon-section">
+            <h2>Spin & Win</h2>
+            <p>This feature is currently pending. Solving complex algorithms...</p>
+            <div class="processing-display">
+                <span id="dynamic-value">_CALCULATING_</span>
+            </div>
+            <div class="loading-bar-container">
+                <div class="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden modals (no longer used by spin logic but kept for consistency if needed elsewhere) -->
+    <div id="win-modal-overlay" class="modal-overlay hidden"></div>
+    <div id="limit-modal-overlay" class="modal-overlay hidden"></div>
+    
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="tasks.html" class="nav-item active"> <!-- Changed active to tasks.html -->
+            <i class="fas fa-list-alt"></i> <!-- Changed icon to tasks icon -->
+            <span>Tasks</span>
+        </a>
+        <a href="plans.html" class="nav-item">
+            <i class="fas fa-layer-group"></i>
+            <span>Plans</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
+            authDomain: "nahid-fa459.firebaseapp.com",
+            databaseURL: "https://nahid-fa459-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nahid-fa459",
+            storageBucket: "nahid-fa459.firebasestorage.app",
+            messagingSenderId: "970994023392",
+            appId: "1:970994023392:web:571332949894edcf4d0985",
+            measurementId: "G-T7N8TJ9MQ1"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+        let userData = null; // To store user data for ad logic
+
+        const dynamicValueElement = document.getElementById('dynamic-value');
+        const processingBgOverlay = document.getElementById('full-screen-processing-bg'); // The grid container
+        const chars = '0123456789ABCDEF!@#$%^&*()_+=[]{}<>'; // Characters for small dynamic display
+        const HACKER_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{}|;:,.<>/?`~'; // Extended chars for background
+
+        // Function to update the smaller dynamic display
+        function updateDynamicDisplay() {
+            let randomString = '';
+            for (let i = 0; i < 15; i++) { // Generate a 15-character string
+                randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            dynamicValueElement.textContent = randomString;
+        }
+
+        // Function to generate content for a single processing block
+        function generateBlockContent() {
+            let content = '';
+            const blockLength = Math.floor(Math.random() * 5) + 3; // 3 to 7 characters
+            for (let i = 0; i < blockLength; i++) {
+                content += HACKER_CHARS.charAt(Math.floor(Math.random() * HACKER_CHARS.length));
+            }
+            return content;
+        }
+
+        // Function to fill the grid with dynamic blocks
+        function initializeHackerGrid() {
+            // Clear existing blocks
+            processingBgOverlay.innerHTML = ''; 
+
+            const blockWidth = 80; // from CSS minmax(80px, 1fr)
+            const blockHeight = 80; // from CSS minmax(80px, 1fr)
+            
+            // Calculate how many blocks can fit based on current viewport size
+            const numColumns = Math.ceil(window.innerWidth / blockWidth);
+            const numRows = Math.ceil(window.innerHeight / blockHeight);
+            const totalBlocks = numColumns * numRows;
+
+            for (let i = 0; i < totalBlocks; i++) {
+                const block = document.createElement('div');
+                block.classList.add('processing-block');
+                block.textContent = generateBlockContent();
+                processingBgOverlay.appendChild(block);
+            }
+        }
+
+        // Function to update a random subset of blocks for animation
+        function animateHackerGrid() {
+            const blocks = processingBgOverlay.children;
+            const numBlocksToUpdate = Math.floor(blocks.length * 0.1); // Update 10% of blocks each time
+
+            for (let i = 0; i < numBlocksToUpdate; i++) {
+                const randomIndex = Math.floor(Math.random() * blocks.length);
+                const block = blocks[randomIndex];
+                if (block) { // Ensure block exists
+                    block.textContent = generateBlockContent();
+                    // Briefly flash opacity for visual effect
+                    block.style.opacity = '1';
+                    setTimeout(() => {
+                        block.style.opacity = '0.8';
+                    }, 100);
+                }
+            }
+        }
+
+        // Initialize the grid once on DOMContentLoaded and on window resize
+        window.addEventListener('DOMContentLoaded', initializeHackerGrid);
+        window.addEventListener('resize', initializeHackerGrid);
+
+        // Start animations
+        setInterval(updateDynamicDisplay, 80); 
+        setInterval(animateHackerGrid, 150); // Update grid blocks every 150ms
+
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
+                userData = userSnapshot.val(); // Store user data
+                setupAdDisplayLogic(); // Set up ad display based on user's plan
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function setupAdDisplayLogic() {
+            if (!currentUser || !userData) return;
+
+            const activePlans = userData.activePlans || {};
+            const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
+            const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
+
+            if (typeof show_9696042 === 'function') {
+                if (hasActivePaidPlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    });
+                    console.log("Spin page: Paid Premium User - No in-app ads.");
+                } else if (hasActiveFreePlan) {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
+                    });
+                    console.log("Spin page: Free Premium User - In-app ads every 5 minutes.");
+                } else {
+                    show_9696042({
+                        type: 'inApp',
+                        inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
+                    });
+                    console.log("Spin page: Normal User - In-app ads every 2 minutes.");
+                }
+            } else {
+                console.warn("Ad SDK function show_9696042 not found on spin page.");
+            }
+        }
+
+        function vibrate() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', vibrate);
+            });
+        });
+    </script>
+</body>
+</html>
