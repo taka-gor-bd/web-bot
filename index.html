@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* All your original CSS here, with minor adjustments */
         :root {
             --primary-color: #ff5722;
             --success-color: #4caf50;
             --error-color: #f44336;
+            --warning-color: #ff9800;
             --background-color: #f0f8ff;
             --card-background: #ffffff;
             --text-color: #212121;
@@ -118,14 +120,27 @@
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.2s ease;
         }
+        
         .btn-submit:hover {
             background-color: #e64a19;
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .auth-switch {
             margin-top: 20px;
             font-size: 0.9em;
         }
+        
         .auth-switch a {
             color: var(--primary-color);
             text-decoration: none;
@@ -137,6 +152,7 @@
             margin-top: 20px;
             font-size: 0.9em;
         }
+        
         .back-to-login a {
             color: var(--primary-color);
             text-decoration: none;
@@ -144,7 +160,62 @@
             cursor: pointer;
         }
 
-        /* Modal/Popup styles */
+        .verification-notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        .verification-code-input {
+            text-align: center;
+            font-size: 1.5em;
+            letter-spacing: 0.5em;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .resend-code {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 10px 5px;
+        }
+
+        .verify-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+
+        .code-display {
+            background: #e8f5e8;
+            border: 2px solid var(--success-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        /* Modal/Popup styles - Adjusted for centering and a "premium" look */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -156,52 +227,60 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.show {
-            display: flex;
-            opacity: 1;
         }
 
         .modal {
             background: var(--card-background);
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
             max-width: 350px;
             width: 90%;
             transform: scale(0.8);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay.show .modal {
-            transform: scale(1);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
         }
         
+        .modal.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
         .modal.success .modal-icon { color: var(--success-color); }
         .modal.error .modal-icon { color: var(--error-color); }
+        .modal.warning .modal-icon { color: var(--warning-color); }
+
+        .modal h3 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        .modal p {
+            margin: 15px 0;
+        }
+
+        .modal-button {
+            padding: 12px 25px;
+            border: none;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: var(--primary-color);
+            transition: background-color 0.2s ease;
+        }
+        .modal-button:hover {
+            background-color: #e64a19;
+        }
 
         .modal-icon {
-            font-size: 3em;
+            font-size: 3.5em;
             margin-bottom: 10px;
         }
 
         .modal-icon.spinner {
             animation: spin 1s linear infinite;
-        }
-        
-        .modal h3 { margin-top: 0; }
-        .modal p { margin: 15px 0; }
-
-        .modal-button {
-            padding: 10px 20px;
-            border: none;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            background-color: var(--primary-color);
         }
 
         @keyframes spin {
@@ -211,13 +290,17 @@
     </style>
 </head>
 <body>
-    <!-- Ad SDK Integration -->
-    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
-
     <div class="container">
         <div id="login-container" class="form-container active">
             <h2>Login</h2>
             <p>Login to your account</p>
+            <div id="verification-notice" class="verification-notice" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Account not verified!</strong><br>
+                Please verify your account first.
+                <br>
+                <button id="go-to-verification" class="resend-code">Verify Account</button>
+            </div>
             <form id="login-form">
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
@@ -241,7 +324,6 @@
             <h2>Sign Up</h2>
             <p>Create your new account</p>
             <form id="signup-form">
-                <input type="hidden" id="referral-id"> <!-- নতুন: রেফারেল আইডি রাখার জন্য -->
                 <div class="input-group">
                     <i class="fas fa-user"></i>
                     <input type="text" id="signup-username" placeholder="Username" required>
@@ -252,12 +334,34 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="signup-password" placeholder="Password" required>
+                    <input type="password" id="signup-password" placeholder="Password (min 6 characters)" required minlength="6">
                 </div>
                 <button type="submit" class="btn-submit">Sign Up</button>
             </form>
             <div class="auth-switch">
                 Already have an account? <a id="show-login-link">Login</a>
+            </div>
+        </div>
+        
+        <div id="verification-container" class="form-container">
+            <h2>Verify Account</h2>
+            <p>Enter the verification code sent to your email</p>
+            <div id="verification-email-display" class="verification-notice">
+                Email: <strong id="verification-email"></strong>
+            </div>
+            <div class="code-display">
+                Your verification code: <span id="generated-code">------</span>
+            </div>
+            <form id="verification-form">
+                <div class="input-group">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="verification-code" placeholder="Enter 6-digit code" maxlength="6" class="verification-code-input" required>
+                </div>
+                <button type="submit" class="verify-btn">Verify Account</button>
+                <button type="button" id="resend-code" class="resend-code">Generate New Code</button>
+            </form>
+            <div class="back-to-login">
+                <a id="back-to-login-from-verification">Back to Login</a>
             </div>
         </div>
         
@@ -277,7 +381,6 @@
         </div>
     </div>
 
-    <!-- Modal/Popup -->
     <div id="custom-modal" class="modal-overlay">
         <div class="modal">
             <i id="modal-icon" class="modal-icon"></i>
@@ -289,8 +392,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-        import { getDatabase, ref, set, get, update, increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyC2yM6GXC2kZMEEMYjdsveDpDHfKzriq0I",
@@ -307,7 +410,15 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Modal elements
+        // Global variables
+        let currentUser = null;
+        let pendingVerificationUser = null;
+        let currentVerificationCode = null;
+
+        const generateVerificationCode = () => {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        };
+
         const modalOverlay = document.getElementById('custom-modal');
         const modal = modalOverlay.querySelector('.modal');
         const modalIcon = document.getElementById('modal-icon');
@@ -319,194 +430,366 @@
             modalTitle.textContent = title;
             modalMessage.textContent = message;
             
-            modal.className = 'modal'; // Reset class
+            modal.className = 'modal show';
             modal.classList.add(type);
+
             modalIcon.className = 'modal-icon';
 
             if (type === 'success') {
-                modalIcon.classList.add('fas', 'fa-check-circle');
+                modalIcon.classList.add('fa-solid', 'fa-check-circle');
             } else if (type === 'error') {
-                modalIcon.classList.add('fas', 'fa-times-circle');
+                modalIcon.classList.add('fa-solid', 'fa-times-circle');
+            } else if (type === 'warning') {
+                modalIcon.classList.add('fa-solid', 'fa-exclamation-triangle');
             } else if (type === 'loading') {
-                modalIcon.classList.add('fas', 'fa-spinner', 'spinner');
-                modalOkButton.style.display = 'none';
+                modalIcon.classList.add('fa-solid', 'fa-spinner', 'spinner');
             } else {
-                modalIcon.classList.add('fas', 'fa-info-circle');
+                modalIcon.classList.add('fa-solid', 'fa-info-circle');
             }
+
+            modalOverlay.style.display = 'flex';
+            modalOkButton.style.display = 'block';
             
-            modalOverlay.classList.add('show');
-            
-            if (type !== 'loading') {
-                modalOkButton.style.display = 'block';
-                modalOkButton.onclick = () => {
-                    hideModal();
-                    if (onOkCallback) onOkCallback();
-                };
-            }
+            modalOkButton.onclick = () => {
+                hideModal();
+                if (onOkCallback) onOkCallback();
+            };
         };
         
         const hideModal = () => {
-            modalOverlay.classList.remove('show');
+            modal.classList.remove('show');
+            setTimeout(() => modalOverlay.style.display = 'none', 300);
         };
         
-        // Check auth state on page load. If logged in, redirect.
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = 'home.html';
-            } else {
-                // If no user is logged in, show ads as a normal user
-                if (typeof show_9696042 === 'function') {
-                    console.log("Auth page: No user logged in. Showing in-app ads as a normal user.");
-                    show_9696042({
-                        type: 'inApp',
-                        inAppSettings: {
-                            frequency: 2, // Show 2 ads
-                            capping: 0.1, // within 6 minutes
-                            interval: 120, // 2 minutes interval
-                            timeout: 5,
-                            everyPage: false
-                        }
-                    });
-                } else {
-                    console.warn("Ad SDK function show_9696042 not found on auth page.");
-                }
+        const vibrate = () => {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
             }
+        };
+
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', vibrate);
+        });
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', vibrate);
         });
 
-        // Form switching logic
-        const loginContainer = document.getElementById('login-container');
-        const signupContainer = document.getElementById('signup-container');
-        const forgotPasswordContainer = document.getElementById('forgot-password-container');
+        const checkUserVerification = async (uid) => {
+            try {
+                const userRef = ref(db, 'users/' + uid);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    return snapshot.val().verified || false;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking verification:', error);
+                return false;
+            }
+        };
+
+        // --- UPDATED AUTH STATE LISTENER ---
+        onAuthStateChanged(auth, async (user) => {
+            console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
+            
+            if (user) {
+                const isVerified = await checkUserVerification(user.uid);
+                
+                if (isVerified) {
+                    currentUser = user;
+                    // Redirect to home.html if user is logged in and verified
+                    window.location.href = "home.html";
+                } else {
+                    pendingVerificationUser = user;
+                    document.getElementById('verification-notice').style.display = 'block';
+                    console.log('User not verified');
+                }
+            } else {
+                currentUser = null;
+                pendingVerificationUser = null;
+                document.getElementById('verification-notice').style.display = 'none';
+                showLoginForm();
+            }
+        });
+        // --- END OF UPDATED AUTH STATE LISTENER ---
 
         const showLoginForm = () => {
-            loginContainer.classList.add('active');
-            signupContainer.classList.remove('active');
-            forgotPasswordContainer.classList.remove('active');
-        }
+            document.getElementById('login-container').classList.add('active');
+            document.getElementById('signup-container').classList.remove('active');
+            document.getElementById('forgot-password-container').classList.remove('active');
+            document.getElementById('verification-container').classList.remove('active');
+        };
 
         const showSignupForm = () => {
-            loginContainer.classList.remove('active');
-            signupContainer.classList.add('active');
-            forgotPasswordContainer.classList.remove('active');
-        }
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('signup-container').classList.add('active');
+            document.getElementById('forgot-password-container').classList.remove('active');
+            document.getElementById('verification-container').classList.remove('active');
+        };
+
+        const showVerificationForm = (email) => {
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('signup-container').classList.remove('active');
+            document.getElementById('forgot-password-container').classList.remove('active');
+            document.getElementById('verification-container').classList.add('active');
+            
+            document.getElementById('verification-email').textContent = email;
+            currentVerificationCode = generateVerificationCode();
+            document.getElementById('generated-code').textContent = currentVerificationCode;
+        };
 
         const showForgotPasswordForm = () => {
-            loginContainer.classList.remove('active');
-            signupContainer.classList.remove('active');
-            forgotPasswordContainer.classList.add('active');
-        }
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('signup-container').classList.remove('active');
+            document.getElementById('forgot-password-container').classList.add('active');
+            document.getElementById('verification-container').classList.remove('active');
+        };
 
         document.getElementById('show-signup-link').addEventListener('click', showSignupForm);
         document.getElementById('show-login-link').addEventListener('click', showLoginForm);
         document.getElementById('show-forgot-password-link').addEventListener('click', showForgotPasswordForm);
         document.getElementById('back-to-login-link').addEventListener('click', showLoginForm);
+        document.getElementById('back-to-login-from-verification').addEventListener('click', showLoginForm);
 
-        // নতুন: URL থেকে রেফারেল কোড নিয়ে ফর্মে সেট করা
-        window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refId = urlParams.get('ref');
-            if (refId) {
-                document.getElementById('referral-id').value = refId;
-                showSignupForm(); // সরাসরি সাইন-আপ ফর্ম দেখানো
-            }
-        };
-
-        // Login functionality
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            showModal('Logging In', 'Please wait...', 'loading');
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // The onAuthStateChanged listener will handle redirection
-            } catch (error) {
-                console.error("Error during login:", error);
-                hideModal();
-                showModal('Login Failed', error.message, 'error');
+        document.getElementById('go-to-verification').addEventListener('click', () => {
+            if (pendingVerificationUser) {
+                showVerificationForm(pendingVerificationUser.email);
             }
         });
 
-        // Sign Up functionality (পরিবর্তিত)
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('signup-username').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const referralId = document.getElementById('referral-id').value; // নতুন: রেফারেল আইডি নেওয়া
+        document.getElementById('resend-code').addEventListener('click', () => {
+            currentVerificationCode = generateVerificationCode();
+            document.getElementById('generated-code').textContent = currentVerificationCode;
+            showModal('Success', 'New verification code generated!', 'success');
+        });
 
-            showModal('Creating Account', 'Please wait...', 'loading');
+        // --- UPDATED LOGIN LOGIC ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const submitButton = e.target.querySelector('.btn-submit');
+
+            if (!email || !password) {
+                showModal('Error', 'Please fill in all fields.', 'error');
+                return;
+            }
 
             try {
-                // 1. Create user account
+                submitButton.disabled = true;
+                submitButton.textContent = 'Logging in...';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                const isVerified = await checkUserVerification(user.uid);
+                
+                if (!isVerified) {
+                    // If not verified, update state but don't redirect
+                    pendingVerificationUser = user;
+                    document.getElementById('verification-notice').style.display = 'block';
+                    showModal('Account Not Verified', 'Please verify your account first. Click "Verify Account" to continue.', 'warning');
+                    return;
+                }
+                
+                // If verified, redirect to home.html
+                window.location.href = "home.html";
+                
+            } catch (error) {
+                console.error("Error during login:", error);
+                let errorMessage = 'Login failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email address.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed attempts. Please try again later.';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password. Please check your credentials.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showModal('Error', errorMessage, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Login';
+            }
+        });
+        // --- END OF UPDATED LOGIN LOGIC ---
+
+        // --- UPDATED SIGNUP LOGIC ---
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const submitButton = e.target.querySelector('.btn-submit');
+
+            if (!username || !email || !password) {
+                showModal('Error', 'Please fill in all fields.', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showModal('Error', 'Password must be at least 6 characters long.', 'error');
+                return;
+            }
+
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Creating Account...';
+                showModal('Loading', 'Creating account...', 'loading');
+                
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. Update user profile
-                await updateProfile(user, { displayName: username });
+                await updateProfile(user, {
+                    displayName: username
+                });
                 
-                // 3. Send email verification
-                await sendEmailVerification(user);
-
-                // 4. Create user data object in the database
-                const userData = {
+                await set(ref(db, 'users/' + user.uid), {
                     username: username,
                     email: email,
                     balance: 0,
                     referralCount: 0,
                     referralEarnings: 0,
                     premiumStatus: false,
-                    avatar: `https://api.dicebear.com/8.x/initials/svg?seed=${username}`
-                };
+                    verified: false,
+                    createdAt: new Date().toISOString()
+                });
 
-                // 5. If there's a referral, add it to user data and update referrer's count
-                if (referralId) {
-                    userData.referredBy = referralId;
-                    const referrerRef = ref(db, `users/${referralId}`);
-                    // Check if referrer exists before updating
-                    const referrerSnap = await get(referrerRef);
-                    if(referrerSnap.exists()) {
-                       await update(referrerRef, {
-                           referralCount: increment(1)
-                       });
-                    }
-                }
+                hideModal();
+                showModal('Success', 'Account created! Please verify your account to continue.', 'success', () => {
+                    showVerificationForm(email);
+                    document.getElementById('signup-form').reset();
+                });
 
-                // 6. Set user data in the database
-                await set(ref(db, 'users/' + user.uid), userData);
-
-                // 7. Success and redirect (গুরুত্বপূর্ণ পরিবর্তন)
-                // Now, onAuthStateChanged will redirect automatically
-                // No need for manual redirect here.
-                
             } catch (error) {
                 console.error("Error during sign up:", error);
-                hideModal();
-                showModal('Sign Up Failed', error.message, 'error');
+                let errorMessage = 'Sign up failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'An account with this email already exists.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Please choose a stronger password.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your internet connection.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showModal('Error', errorMessage, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign Up';
+            }
+        });
+        // --- END OF UPDATED SIGNUP LOGIC ---
+
+        document.getElementById('verification-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const enteredCode = document.getElementById('verification-code').value.trim();
+            const submitButton = e.target.querySelector('.verify-btn');
+
+            if (!enteredCode) {
+                showModal('Error', 'Please enter the verification code.', 'error');
+                return;
+            }
+
+            if (enteredCode !== currentVerificationCode) {
+                showModal('Error', 'Invalid verification code. Please try again.', 'error');
+                return;
+            }
+
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Verifying...';
+                
+                if (pendingVerificationUser) {
+                    await update(ref(db, 'users/' + pendingVerificationUser.uid), {
+                        verified: true,
+                        verifiedAt: new Date().toISOString()
+                    });
+
+                    showModal('Success', 'Account verified! Redirecting to homepage...', 'success', () => {
+                        window.location.href = "home.html"; // Redirect after successful verification
+                    });
+                }
+                
+            } catch (error) {
+                console.error("Error during verification:", error);
+                showModal('Error', 'Verification failed. Please try again.', 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Verify Account';
             }
         });
         
-        // Forgot Password functionality
         document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('forgot-password-email').value;
+            const email = document.getElementById('forgot-password-email').value.trim();
+            const submitButton = e.target.querySelector('.btn-submit');
             
-            showModal('Sending Email', 'Please wait...', 'loading');
-            
+            if (!email) {
+                showModal('Error', 'Please enter your email address.', 'error');
+                return;
+            }
+
             try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Sending...';
+                showModal('Loading', 'Sending reset email...', 'loading');
+                
                 await sendPasswordResetEmail(auth, email);
+
                 hideModal();
-                showModal('Email Sent', 'A password reset link has been sent to your email. Please check your inbox!', 'success', () => {
+                showModal('Success', `Password reset email sent to ${email}. Check your inbox.`, 'success', () => {
                     showLoginForm();
+                    document.getElementById('forgot-password-form').reset();
                 });
+                
             } catch (error) {
                 console.error("Error sending password reset email:", error);
-                hideModal();
-                showModal('Error', 'Failed to send password reset email: ' + error.message, 'error');
+                let errorMessage = 'Failed to send reset email. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email address.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address format.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showModal('Error', errorMessage, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Reset Link';
             }
+        });
+
+        document.getElementById('verification-code').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 6);
         });
     </script>
 </body>
-</html>
+                           </html>
