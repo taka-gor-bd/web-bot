@@ -6,6 +6,11 @@
     <title>Plans</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
+    
+    <script src="https://ad.gigapub.tech/script?id=1547"></script>
+    
     <style>
         :root {
             --primary-color: #ff5722;
@@ -381,9 +386,6 @@
     </style>
 </head>
 <body>
-    <!-- Ad SDK Integration -->
-    <script src='//libtl.com/sdk.js' data-zone='9696042' data-sdk='show_9696042'></script>
-
     <div class="container">
         <div class="plans-section">
             <h2>Our Plans</h2>
@@ -449,7 +451,7 @@
         const db = getDatabase(app);
         
         let currentUser = null;
-        let userData = null; // Store user data for ad logic and free plan status
+        let userData = null;
         let selectedPlan = null;
         let timerIntervals = {};
 
@@ -474,16 +476,22 @@
             }
         }
 
-        // Modified closeModal to simply hide the overlay
         window.closeModal = function(event) {
-            // Check if click is on overlay itself or a button within the modal
             if (event && event.target && (event.target.id === 'plan-modal-overlay' || event.target.closest('.close-button') || event.target.closest('.cancel-button') || event.target.closest('.confirm-button'))) {
                 document.getElementById('plan-modal-overlay').classList.add('hidden');
-            } else if (!event) { // For calls without an event (e.g., from JS logic)
+            } else if (!event) {
                 document.getElementById('plan-modal-overlay').classList.add('hidden');
             }
         }
         
+        function showModal(title, description, buttons) {
+            const modalOverlay = document.getElementById('plan-modal-overlay');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-description').innerHTML = description;
+            document.getElementById('modal-buttons').innerHTML = buttons;
+            modalOverlay.classList.remove('hidden');
+        }
+
         window.buyPlan = async function(planId) {
             vibrate();
             selectedPlan = plans.find(plan => plan.id === planId);
@@ -491,27 +499,29 @@
             
             const userRef = ref(db, `users/${currentUser.uid}`);
             const userSnapshot = await get(userRef);
-            userData = userSnapshot.val() || {}; // Update global userData
+            userData = userSnapshot.val() || {};
             const currentBalance = userData.balance || 0;
             const activePlans = userData.activePlans || {};
-            const freePlanClaimedStatus = userData.freePlanClaimed || false; // New flag for free plan
+            const freePlanClaimedStatus = userData.freePlanClaimed || false;
 
-            // Check if there's any active plan, regardless of its type
             const hasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
-
+            const activeFreePlan = Object.values(activePlans).find(plan => plan.id === 'free-plan' && plan.status === 'active');
+            
             if (hasActivePlan) {
-                showModal("Plan Already Active", "You already have an active plan. Please let it expire or contact support if you wish to upgrade.", `<button class="confirm-button" onclick="closeModal()">OK</button>`);
+                const message = activeFreePlan ? 
+                    "You must wait for your free plan to expire before purchasing a new one." : 
+                    "You already have an active plan. Please wait for it to expire.";
+                showModal("Plan Already Active", message, `<button class="confirm-button" onclick="closeModal()">OK</button>`);
                 return;
             }
-
-            // Prevent Free Plan from being claimed more than once
+            
             if (selectedPlan.id === 'free-plan' && freePlanClaimedStatus) {
-                showModal("Free Plan Claimed", "You have already claimed your free plan. Free plan can only be claimed once.", `<button class="confirm-button" onclick="closeModal()">OK</button>`);
+                showModal("Free Plan Claimed", "You have already claimed your free plan. It can only be claimed once.", `<button class="confirm-button" onclick="closeModal()">OK</button>`);
                 return;
             }
-
+            
             if (selectedPlan.price > 0 && currentBalance < selectedPlan.price) {
-                showModal("Insufficient Balance", "Insufficient balance. Please deposit funds to purchase this plan.", `<button class="confirm-button" onclick="window.location.href = 'diposit.html';">Go to Deposit</button><button class="cancel-button" onclick="closeModal()">Cancel</button>`);
+                showModal("Insufficient Balance", "Insufficient balance. Please deposit funds to purchase this plan.", `<button class="confirm-button" onclick="window.location.href = 'deposit.html';">Go to Deposit</button><button class="cancel-button" onclick="closeModal()">Cancel</button>`);
                 return;
             }
 
@@ -528,7 +538,7 @@
             
             const userRef = ref(db, `users/${currentUser.uid}`);
             const userSnapshot = await get(userRef);
-            userData = userSnapshot.val() || {}; // Re-fetch for freshest data
+            userData = userSnapshot.val() || {};
             const currentBalance = userData.balance || 0;
             
             const newBalance = currentBalance - selectedPlan.price;
@@ -541,14 +551,12 @@
                 status: 'active'
             };
             
-            // Prepare update object
             const updates = { 
                 balance: newBalance,
-                premiumStatus: true, // Mark user as premium regardless of plan type
+                premiumStatus: true,
                 [`activePlans/${planPurchaseId}`]: planDetails 
             };
 
-            // If free plan is purchased, set the freePlanClaimed flag
             if (selectedPlan.id === 'free-plan') {
                 updates.freePlanClaimed = true;
             }
@@ -562,33 +570,59 @@
                 timestamp: Date.now()
             });
 
-            closeModal(); // Close modal first
-            const buttons = `<button class="confirm-button" onclick="window.location.href = 'free.plan.html';">Go to Tasks</button>`;
+            closeModal();
+            const buttons = `<button class="confirm-button" onclick="window.location.href = 'tasks.html';">Go to Tasks</button>`;
             showModal("Success!", `Successfully purchased ${selectedPlan.name} plan!`, buttons);
             
-            loadPlans(); // Reload plans to update UI
+            loadPlans();
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 const userSnapshot = await get(ref(db, `users/${currentUser.uid}`));
-                userData = userSnapshot.val(); // Store user data
-                await loadPlans(); // Load plans first
-                await setupAdDisplayLogic(); // Then check for ad display
+                userData = userSnapshot.val();
+                
+                // Show Gigapub ad on page load
+                if (window.showGiga) {
+                    window.showGiga()
+                    .catch(e => console.error("Gigapub ad failed on page load:", e));
+                }
+
+                await loadPlans();
+                await setupAdDisplayLogic();
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // Function to check user's plan and display ad if applicable
+        document.querySelectorAll('.bottom-nav a').forEach(navItem => {
+            navItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                vibrate();
+                const targetUrl = navItem.href;
+
+                // Show Gigapub ad on navigation click
+                if (window.showGiga) {
+                    window.showGiga()
+                    .then(() => {
+                        window.location.href = targetUrl;
+                    })
+                    .catch(e => {
+                        console.error("Gigapub ad failed on navigation click:", e);
+                        window.location.href = targetUrl;
+                    });
+                } else {
+                    window.location.href = targetUrl;
+                }
+            });
+        });
+
         async function setupAdDisplayLogic() {
             if (!currentUser || !userData) return;
 
             const activePlans = userData.activePlans || {};
-            // Check if any active plan has a price > 0 (Paid Premium)
             const hasActivePaidPlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.price > 0);
-            // Check if Free Plan is active
             const hasActiveFreePlan = Object.values(activePlans).some(plan => plan.status === 'active' && plan.id === 'free-plan');
 
             if (typeof show_9696042 === 'function') {
@@ -597,32 +631,24 @@
                         type: 'inApp',
                         inAppSettings: { frequency: 0, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
                     });
-                    console.log("Plans page: Paid Premium User - No in-app ads.");
+                    console.log("Plans page: Paid Premium User - No Adsterra in-app ads.");
                 } else if (hasActiveFreePlan) {
                     show_9696042({
                         type: 'inApp',
                         inAppSettings: { frequency: 1, capping: 0.1, interval: 300, timeout: 5, everyPage: false }
                     });
-                    console.log("Plans page: Free Premium User - In-app ads every 5 minutes.");
+                    console.log("Plans page: Free Premium User - Adsterra in-app ads every 5 minutes.");
                 } else {
-                    // Normal user without any active plan (including expired free plan)
-                    show_9696042('pop').then(() => { // Show pop ad on page entry
-                        console.log("Ad displayed on Plans page entry for Normal User.");
-                    }).catch(e => {
-                        console.error("Error displaying pop ad on Plans page:", e);
-                    });
-                    // Also set in-app for subsequent views
                     show_9696042({
                         type: 'inApp',
                         inAppSettings: { frequency: 2, capping: 0.1, interval: 120, timeout: 5, everyPage: false }
                     });
-                    console.log("Plans page: Normal User - In-app ads every 2 minutes.");
+                    console.log("Plans page: Normal User - Adsterra in-app ads every 2 minutes.");
                 }
             } else {
-                console.warn("Ad SDK function show_9696042 not found on plans page.");
+                console.warn("Adsterra Ad SDK function show_9696042 not found on plans page.");
             }
         }
-
 
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -658,10 +684,9 @@
             const userRef = ref(db, `users/${currentUser.uid}/activePlans/${planPurchaseId}`);
             await update(userRef, { status: "expired" });
             
-            // Also update premiumStatus to false if this was the last active paid plan
             const userRootRef = ref(db, `users/${currentUser.uid}`);
             const userSnapshot = await get(userRootRef);
-            userData = userSnapshot.val() || {}; // Update global userData
+            userData = userSnapshot.val() || {};
             const activePlans = userData.activePlans || {};
             const stillHasActivePlan = Object.values(activePlans).some(plan => plan.status === 'active');
 
@@ -669,7 +694,7 @@
                 await update(userRootRef, { premiumStatus: false });
             }
 
-            loadPlans(); // Reload plans to update UI
+            loadPlans();
         }
 
         async function loadPlans() {
@@ -683,23 +708,22 @@
 
             const userRef = ref(db, `users/${currentUser.uid}`);
             const userSnapshot = await get(userRef);
-            userData = userSnapshot.val() || {}; // Ensure userData is freshest
-            const activePlans = userData.activePlans || {}; // Object of active plans
-            const freePlanClaimedStatus = userData.freePlanClaimed || false; // Get free plan claimed status
+            userData = userSnapshot.val() || {};
+            const activePlans = userData.activePlans || {};
+            const freePlanClaimedStatus = userData.freePlanClaimed || false;
 
             const purchasedPlanInstances = Object.values(activePlans).filter(p => p.status === 'active');
             const hasAnyActivePlan = purchasedPlanInstances.length > 0;
 
-            const plansToDisplay = [...plans]; // Create a mutable copy
+            const plansToDisplay = [...plans];
 
-            // Sort active plans to the top
             const sortedPlans = plansToDisplay.sort((a, b) => {
                 const aIsActive = purchasedPlanInstances.some(instance => instance.id === a.id);
                 const bIsActive = purchasedPlanInstances.some(instance => instance.id === b.id);
 
                 if (aIsActive && !bIsActive) return -1;
                 if (!aIsActive && bIsActive) return 1;
-                return a.price - b.price; // Sort by price if not active/inactive
+                return a.price - b.price;
             });
 
             sortedPlans.forEach(plan => {
@@ -708,7 +732,7 @@
                 
                 const purchasedPlan = purchasedPlanInstances.find(instance => instance.id === plan.id);
                 const isActive = purchasedPlan && purchasedPlan.status === 'active';
-                const isOtherPlanActive = hasAnyActivePlan && !isActive; // True if THIS plan is NOT active, but SOME OTHER plan IS active
+                const isOtherPlanActive = hasAnyActivePlan && !isActive;
 
                 if (isActive) {
                     planCard.classList.add('active-plan');
@@ -725,7 +749,6 @@
                         </div>
                     `;
 
-                    // Start timer for the active plan
                     const timerElement = planCard.querySelector('.plan-timer');
                     if (timerElement) {
                         timerIntervals[purchasedPlan.purchaseDate] = setInterval(() => {
@@ -734,7 +757,7 @@
                         updateTimer(purchasedPlan.expirationDate, timerElement, purchasedPlan.purchaseDate);
                     }
 
-                } else { // Not active plan
+                } else {
                     planCard.innerHTML = `
                         <i class="fas fa-star plan-icon"></i>
                         <h3>${plan.name}</h3>
@@ -748,8 +771,10 @@
                     `;
                     
                     const buyButton = planCard.querySelector('.buy-button');
-                    // Disable other plans if another is active OR free plan is already claimed
-                    if (isOtherPlanActive || (plan.id === 'free-plan' && freePlanClaimedStatus)) {
+                    if (isOtherPlanActive) {
+                        buyButton.classList.add('disabled');
+                    }
+                    if (plan.id === 'free-plan' && freePlanClaimedStatus) {
                         buyButton.classList.add('disabled');
                     }
                 }
@@ -759,4 +784,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
