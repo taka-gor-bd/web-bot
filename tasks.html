@@ -100,7 +100,24 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: flex; /* For spinner */
+            align-items: center;
+            justify-content: center;
         }
+
+        .task-button .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid #fff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
 
         .task-card .do-task {
             background: linear-gradient(45deg, #ff7e5f, #feb47b);
@@ -262,7 +279,7 @@
         </div>
     </div>
 
-    <!-- Poptop (Modal) for Win/Messages -->
+    <!-- Poptop (Modal) for general messages -->
     <div id="poptop-overlay" class="poptop-overlay">
         <div class="poptop-content">
             <h3 id="poptop-title">Message</h3>
@@ -298,7 +315,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-        import { getDatabase, ref, get, set, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { getDatabase, ref, get, set, serverTimestamp, update, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
         import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
 
         const firebaseConfig = {
@@ -449,14 +466,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        function isSameDay(timestamp) {
-            const today = new Date();
-            const taskDate = new Date(timestamp);
-            return today.getFullYear() === taskDate.getFullYear() &&
-                   today.getMonth() === taskDate.getMonth() &&
-                   today.getDate() === taskDate.getDate();
-        }
-
         async function renderTasks() {
             const tasksContainer = document.getElementById('tasks-container');
             tasksContainer.innerHTML = ''; 
@@ -570,10 +579,11 @@
 
         async function completeTask(button, taskId, reward, storedStateKey) {
             button.disabled = true; // Disable button immediately to prevent double click
-            showPoptop("Loading Ad...", "Please wait while we prepare your ad.", "info");
+            button.innerHTML = `<span class="spinner"></span> Loading Ad...`; // Show spinner
+            showPoptop("Loading Ad...", "Please wait while we prepare your ad.", "info"); // Show modal
 
             if (typeof show_9696042 === 'function') {
-                show_9696042('pop').then(async () => {
+                show_9696042().then(async () => { // Changed from 'pop' to standard rewarded/interstitial
                     // Ad was watched/closed by user, now complete the task
                     const userRef = ref(db, `users/${currentUser.uid}`);
                     const userSnapshot = await get(userRef);
@@ -611,26 +621,29 @@
                         button.classList.add('disabled-task');
                         button.disabled = true;
 
-                    } catch (error) {
+                    } catch (error) { // Catch for Firebase operations
                         console.error("Error completing task after ad:", error);
-                        showPoptop("Error", "Failed to complete task. Please try again.", "error", () => {
+                        showPoptop("Error", "Failed to complete task. Please try again. (Firebase Error)", "error", () => {
+                            button.innerHTML = `Check & Complete`; // Restore button text
                             button.disabled = false; // Re-enable button on error
                         });
                     }
-                }).catch((e) => {
+                }).catch((e) => { // Catch for Ad promise
                     // Ad failed to load or was dismissed by user without completion
                     console.error("Ad failed or was dismissed:", e);
                     showPoptop("Ad Not Completed", "You need to watch the ad fully to get the reward. Please try again.", "error", () => {
+                        button.innerHTML = `Check & Complete`; // Restore button text
                         button.disabled = false; // Re-enable button on ad failure
                     });
                 });
             } else {
                 // Ad SDK not loaded
                 showPoptop("Error", "Ad service not available. Please try again later.", "error", () => {
+                    button.innerHTML = `Check & Complete`; // Restore button text
                     button.disabled = false; // Re-enable button
                 });
             }
         }
     </script>
 </body>
-</html>
+    </html>
