@@ -6,6 +6,7 @@
     <title>Secret Card</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://ad.gigapub.tech/script?id=1547"></script>
     <style>
         :root {
             --primary-color: #ff5722;
@@ -203,7 +204,7 @@
                 </div>
             </div>
         </div>
-        <a href="home.html" class="back-button" id="back-button">Go to Home</a>
+        <a href="#" class="back-button" id="back-button">Go to Home</a>
     </div>
 
     <div id="poptop-overlay" class="poptop-overlay">
@@ -252,6 +253,11 @@
 
         const prizes = [0.01, 0.02, 0.05, 0.10, 0.00, 0.00, 0.00];
 
+        // Ad logic for when the page first loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.showGiga().catch(e => console.error("Gigapub ad failed on page load:", e));
+        });
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -259,6 +265,19 @@
             } else {
                 window.location.href = 'index.html';
             }
+        });
+
+        // Ad logic for the "Go to Home" button
+        backButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.showGiga()
+                .then(() => {
+                    window.location.href = 'home.html';
+                })
+                .catch(e => {
+                    console.error("Gigapub ad failed on button click:", e);
+                    window.location.href = 'home.html';
+                });
         });
 
         async function checkUserCardStatus() {
@@ -452,4 +471,4 @@
         }
     </script>
 </body>
-  </html>
+</html>
